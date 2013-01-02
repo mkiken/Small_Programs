@@ -1,0 +1,38 @@
+SortSafari 使い方メモ
+
+サファリのブックマークをソートします。
+基本的にはフォルダ優先 + 辞書順でソートします。
+
+
+1.SortSafariディレクトリまでcdコマンドで移動
+
+2.SortSafari.shを動かす、オプションは
+
+sh SortSafari.sh -f InputFileName [-i] [-r] [-b] [-o OutputFileName] [-c CopyFileName]
+
+-f InputFileName     :    変換もとのファイル名。（必須）
+-c CopyFileName      : copyオプション。変換前にブックマークをCopyFileNameにコピーしておく。
+-o OutputFileName      : Outputオプション。出力ファイルを指す。ないとInputFileNameを変換します。
+-i                           : Ignoreオプション。これがあると小文字、大文字を無視してソートする。
+-r     :    Reverseオプション。逆順にソートする。
+-b     :     変換後にXMLファイルからバイナリファイルに戻す
+
+僕は
+sh SortSafari.sh -f （ホームのパス）/Library/Safari/Bookmarks.plist -c （ホームのパス）/Library/Safari/Bookmarks_copy.plist -b -i
+でやってます。
+
+注意事項
+・Mac OS X 10.5 LeopardのSafariバージョン 5.0.6 (5533.22.3)でしか試していません。
+
+・初めて使うときはブックマークファイル(Bookmarks.plist)は必ずコピーしておいてください。-cオプションは常に推奨します。消えても責任は持てません。
+
+・-fと-oの引数ファイルを同じにするとバグります。
+
+・-bはつけなくてもSafariで動作しますが、つけておくと軽いのでおすすめです。また、XMLファイルのBookmarks.plistを変換にかけるとバグります。
+
+・InputFileNameとOutputFileName、CopyFileNameは環境によっては消える可能性があるので、初めての際は必ずバックアップをとってから使ってください。
+
+・上級者向けですが、srcをいじってsortSafari.jarを作り直すことで改良可能です。
+
+
+2012/05/21   K.M
