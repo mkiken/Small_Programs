@@ -9,5 +9,5 @@ openAll [AppleScript]
  droplet for open all files in folder.
 
 
-cpr [Ruby]
- cp extention enables consecutive target files.
+ccp [Ruby]
+ cp command extention enables consecutive target files.
