@@ -1,0 +1,44 @@
+#!/usr/bin/ruby
+
+src = "", dst = "", option = " ", pos = 0;
+ARGV.length.times{ |i|
+  if ARGV[i][0] == "-"[0] then
+    option += ARGV[i] + " "
+  else
+    pos = i
+    break
+  end
+}
+if(pos+1 < ARGV.length) then
+  src = ARGV[pos]
+  dst = ARGV[pos+1]
+end
+spos = dst.index("[")
+epos = dst.index("]")
+exec = 0
+if spos != nil && epos != nil && spos < epos then
+  prefix = 0 <=spos-1? dst[0..spos-1] : ""
+  suffix = dst[epos+1..dst.length]
+  tmp = dst;
+  range = dst[spos+1..epos-1]
+  spos = range.index(".")
+  epos = range.rindex(".")
+  if spos != nil then
+    schar = range[0..spos-1]
+    echar = range[epos+1, range.length]
+    len = schar.length
+    if 1 <= len && len == echar.length then
+      com = "cp" + option + src + " " + prefix;
+      while schar <= echar
+        #puts com+schar+suffix
+        system(com+schar+suffix)
+        break if schar == echar
+        schar.succ!
+      end
+      #puts com+"["+range+"]"+suffix+" done."
+      exec = 1
+    end
+  end
+end
+
+puts "range cp fail." if exec == 0
