@@ -12,6 +12,7 @@ ARGV.length.times{ |i|
 if(pos+1 < ARGV.length) then
   src = ARGV[pos]
   dst = ARGV[pos+1]
+else puts "invalid arguments."
 end
 spos = dst.index("[")
 epos = dst.index("]")
@@ -37,8 +38,11 @@ if spos != nil && epos != nil && spos < epos then
       end
       #puts com+"["+range+"]"+suffix+" done."
       exec = 1
+    else puts "invalid range start or range end."
     end
+  else puts "'.' not found."
   end
+else puts "invalid range."
 end
 
 puts "range cp fail." if exec == 0
