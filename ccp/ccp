@@ -20,7 +20,6 @@ exec = 0
 if spos != nil && epos != nil && spos < epos then
   prefix = 0 <=spos-1? dst[0..spos-1] : ""
   suffix = dst[epos+1..dst.length]
-  tmp = dst;
   range = dst[spos+1..epos-1]
   spos = range.index(".")
   epos = range.rindex(".")
@@ -31,12 +30,10 @@ if spos != nil && epos != nil && spos < epos then
     if 1 <= len && len == echar.length then
       com = "cp" + option + src + " " + prefix;
       while schar <= echar
-        #puts com+schar+suffix
         system(com+schar+suffix)
         break if schar == echar
         schar.succ!
       end
-      #puts com+"["+range+"]"+suffix+" done."
       exec = 1
     else puts "invalid range start or range end."
     end
