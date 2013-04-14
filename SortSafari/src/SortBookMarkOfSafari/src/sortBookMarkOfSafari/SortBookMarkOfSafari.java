@@ -25,24 +25,11 @@ public class SortBookMarkOfSafari {
 	public static int bIgnore = 0;
 	public static int bReverse = 0;
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
-		if(setArgs(args)){
-			doIt();
-		}
-		else{
-			System.out.println("setArgs fail.");
-		}
-		//test();
+		if(setArgs(args)) doIt();
+		else System.out.println("setArgs fail.");
 	}
 	public static boolean setArgs(String[] args) {
-//		System.out.println("setArgs Start.");
-//		int len = args.length;
-//		for(int i = 0;i < len; i++){
-//			System.out.println(args[i]);
-//		}
 		try {
 			//1つめはInputFile
 			inputFileName = args[0];
@@ -60,12 +47,8 @@ public class SortBookMarkOfSafari {
 	public static void doIt(){
 		System.out.println("SortBookmarkOfSafari Start.");
 		getRoot();
-		if(getTop() == false){
-			return;
-		}
-		if(sortArray(top) == false){
-			return;
-		}
+		if(getTop() == false) return;
+		if(sortArray(top) == false) return;
 		System.out.println("sortArray Success.");
 		outputFile();
 		System.out.println("SortBookmarkOfSafari End.");
@@ -79,7 +62,7 @@ public class SortBookMarkOfSafari {
 			File newXML = new File(outputFileName);
 			FileOutputStream os = new FileOutputStream(newXML);
 			StreamResult result = new StreamResult(os);
-			transformer.transform(source, result);	
+			transformer.transform(source, result);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -91,9 +74,7 @@ public class SortBookMarkOfSafari {
 		//NodeList nList = top.getElementsByTagName("dict");
 		NodeList nList = array.getChildNodes();
 		ArrayList<DictUnit> dictUnit = makeDictUnit(nList);
-		if(dictUnit == null){
-			return false;
-		}
+		if(dictUnit == null) return false;
 		//dictUnitに従って実際に入れ替える
 		//バブルソートを行う
 		doBubbleSort(array, nList, dictUnit);
@@ -115,7 +96,7 @@ public class SortBookMarkOfSafari {
 					//交換する
 					dictUnit.set(j, right);
 					dictUnit.set(j + 1, left);
-				}	
+				}
 			}
 		}
 
@@ -124,9 +105,7 @@ public class SortBookMarkOfSafari {
 		//removechildを使うとnListの中身が消えて厄介なので、念のため後ろから削除していく
 		for(int i = len-1; 0 <= i; i--){
 			Node n = nList.item(i);
-			if(n != null){
-				array.removeChild(n);
-			}
+			if(n != null) array.removeChild(n);
 		}
 
 		NodeList nList2 = clone.getChildNodes();
@@ -139,9 +118,7 @@ public class SortBookMarkOfSafari {
 			//appendChildで消えた分、残りのインデックスを修正する
 			for(int j = i+1; j < len; j++){
 				int a = dictUnit.get(j).index;
-				if(a > index){
-					dictUnit.get(j).index -= 1;
-				}
+				if(a > index) dictUnit.get(j).index -= 1;
 			}
 		}
 	}
@@ -201,39 +178,24 @@ public class SortBookMarkOfSafari {
 	public static boolean judge(DictUnit left, DictUnit right){
 		boolean bRet;
 		//まず、ディレクトリを優先
-		if(left.isDir == true && right.isDir == false){
-			bRet = true;
-		}
-		else if(left.isDir == false && right.isDir == true){
-			bRet = false;
-		}
+		if(left.isDir == true && right.isDir == false) bRet = true;
+		else if(left.isDir == false && right.isDir == true) bRet = false;
 		else{
 			//2つが同じ種類であったら文字列で比較
 			//一応大文字、小文字を意識。無視するならcompareToIgnoreCase(str)
 			if(bIgnore == 1){
-				if(left.name.compareToIgnoreCase(right.name) > 0){
-					bRet = false;
-				}
-				else{
-					bRet = true;
-				}
+				if(left.name.compareToIgnoreCase(right.name) > 0) bRet = false;
+				else bRet = true;
 			}
 			else{
-				if(left.name.compareTo(right.name) > 0){
-					bRet = false;
-				}
-				else{
-					bRet = true;
-				}
+				if(left.name.compareTo(right.name) > 0) bRet = false;
+				else bRet = true;
 			}
 		}
 		//逆順ソートなら反転させる
-		if(bReverse == 1){
-			bRet = !bRet;
-		}
+		if(bReverse == 1) bRet = !bRet;
 		return bRet;
 	}
-
 	//eの子ノードからSafariブックマーク形式で<key>プロパティがkeyと一致するものの<String>プロパティを返す
 	//見つからなかったらnull
 	public static String key2Str(Element e, String key){
@@ -252,9 +214,7 @@ public class SortBookMarkOfSafari {
 						node = list.item(j);
 						//はじめにkeyの次にあるELEMENTが対応するstringであるはず！
 						if(node.getNodeType() == ELEMENT_NODE){
-							if(node.getNodeName().equals("string")){
-								return node.getFirstChild().getNodeValue();
-							}
+							if(node.getNodeName().equals("string")) return node.getFirstChild().getNodeValue();
 							break;
 						}
 					}
@@ -283,7 +243,7 @@ public class SortBookMarkOfSafari {
 					else{
 						System.out.println("getTop Success.");
 						return true;
-					}	
+					}
 				}
 			}
 		}
@@ -304,32 +264,4 @@ public class SortBookMarkOfSafari {
 		System.out.println("getRoot Success.");
 		return true;
 	}
-
-	/*public static void test(Element e, Node n){	
-		e.appendChild(n);
-	}
-	public static void prt(Node n){
-		System.out.println("Name : " + n.getNodeName() + ", Type : " + n.getNodeType()  + ", Value : "+ n.getNodeValue());	
-	}
-	public static void prt(NodeList nList){
-		System.out.println("prt start!");
-		int len = nList.getLength();
-		for(int i = 0; i < len; i++){
-			Node n = nList.item(i);
-			System.out.println("Name : " + n.getNodeName() + ", Type : " + n.getNodeType()  + ", Value : "+ n.getNodeValue());
-		}
-		System.out.println("prt end!");
-	}
-	public static void prt(ArrayList<DictUnit> d){
-		System.out.println("prt start!");
-		int len = d.size();
-		for(int i = 0; i < len; i++){
-			DictUnit du = d.get(i);
-			System.out.println("index : " + du.index + ", Name : " + du.name  + ", isDir : "+ du.isDir);
-		}
-		System.out.println("prt end!");
-	}
-	public static void p(String s){
-		System.out.println("p : " + s);	
-	}*/
 }

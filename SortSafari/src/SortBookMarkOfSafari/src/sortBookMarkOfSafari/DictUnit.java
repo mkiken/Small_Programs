@@ -6,18 +6,9 @@ public class DictUnit {
 	//フォルダならtrue、違ったらfalse
 	public boolean isDir;
 	//ファイル名、フォルダ名
-	public String name; 
-	
+	public String name;
+
 	public DictUnit(){
 		;
 	}
-	
-//	public static void setIsDir(boolean b){
-//		isDir = b;
-//	}
-//	public static boolean getIsDir(){
-//		return isDir;
-//	}
-
-
 }
