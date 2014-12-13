@@ -21,7 +21,7 @@ module GF
         SMILE_CUPID => 60 * 60 * 8, # スマイルキューピッドは8時間
         ARBEIT => 60 * 60, # アルバイトは1時間
         QUEST_EMPTY => 60 * 20, #クエストはとりあえず20分にしてみる
-        RAIDBOSS_EMPTY => 60 * 10 #レイドはとりあえず10分にしてみる
+        RAIDBOSS_EMPTY => 60 * 3 #レイドはとりあえず3分にしてみる
       }.freeze
       @exec_timestamp = {
         FREE_CUPID => nil,
@@ -237,7 +237,8 @@ module GF
           break
         end
 
-        self.set_expire QUEST_EMPTY if self.exist_element("//*[contains(text(), '！体力が足りません！')]", :xpath) #体力切れたらexpireセット
+        # TODO 判定のロジックがあまり良くないので変えたい
+        self.set_expire QUEST_EMPTY if self.exist_element("//div[@id='outStamina' and @class='popup' and contains(@style, 'position')]", :xpath) #体力切れたらexpireセット
       end
       self.log "quest_exec end."
       TRUE
