@@ -199,15 +199,17 @@ module GF
 
 
     # canvas 要素があるみたいならノックして次の画面へ
-    def flash_knock
+    def flash_knock(count=1)
       self.log 'flash_knock start.'
       begin
         current_url = @driver.current_url
         canvas = @driver.find_element(:css, '#canvas')
         if canvas
           while current_url == @driver.current_url do
-            canvas.click
-            sleep 2
+            count.times{
+              canvas.click
+              sleep 1
+            }
           end
         end
       rescue
@@ -226,11 +228,21 @@ module GF
       self.log "quest_exec start."
       return if self.check_expire QUEST_EMPTY #期限内だったらやらない
       self.flash_knock
+
       if self.click_element('#js_questBtn>a') == FALSE
         self.log "quest button not found. quest_exec end."
         return FALSE
       end
 
+      # 通常時はquest_detailに飛ばないとクエストができない
+      # elem = self.exist_element("//div/p/a[contains(@href,'/quest/quest-detail')]", :xpath)
+      if self.exist_element("img[src='http://stat100.ameba.jp/vcard/ratio20/images/title/area_h1.jpg']")
+        if self.click_element("img[src='http://stat100.ameba.jp/vcard/ratio20/images/quest/btn_challenge.png']")
+        else
+          self.log "now you're in area select page.but quest btn not found!"
+          return FALSE
+        end
+      end
       # 通常時
       while(self.click_element('#btnFight'))
         sleep 3
@@ -238,6 +250,15 @@ module GF
         if self.exist_element('#btnFight.relative.noneTapColor.sprite2_btnSearchOff') || self.exist_element('#btnFight.relative.noneTapColor.sprite2_btnSearchUpoff')
           break
         end
+
+        # TODO Touch Bonus
+        # if self.exist_element("//div[@id='bustUpGirlBtn' and @class='btnBlueGrn' and contains(@style, 'position')]", :xpath) #Touchボタンがあったら
+          # self.log "Touch start!"
+          # # style="position: absolute; width: 131px; height: 53px; overflow: hidden; left: 167px; top: 213px; background-image: url(http://stat100.ameba.jp/vcard/ratio20/images/animation/quest/touchbonus/common_voiceAlertOffBtn.png); background-position: 0px 0px;"のdiv要素（音声OFFのまま）をクリック
+          # self.flash_knock(4)
+          #position: absolute; width: 271px; height: 53px; overflow: hidden; left: 25px; top: 308px; background-image: url(http://stat100.ameba.jp/vcard/ratio20/images/animation/quest/touchbonus/resultQuestBtn.png); background-position: 0px 0px;（登校にもどる）をクリック,最悪リダイレクト
+
+        # end
 
         # TODO 判定のロジックがあまり良くないので変えたい
         self.set_expire QUEST_EMPTY if self.exist_element("//div[@id='outStamina' and @class='popup' and contains(@style, 'position')]", :xpath) #体力切れたらexpireセット
