@@ -1,3 +1,5 @@
+# coding: utf-8
+
 require 'date'
 # ガールフレンド（仮） オートパイロット for Selenium + WebDriver
 module GF
