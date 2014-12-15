@@ -205,11 +205,13 @@ module GF
         current_url = @driver.current_url
         canvas = @driver.find_element(:css, '#canvas')
         if canvas
-          while current_url == @driver.current_url do
+          cnt = 0 # 無限ループ対策
+          while current_url == @driver.current_url and cnt <= 10 do
             count.times{
               canvas.click
               sleep 1
             }
+            cnt += 1
           end
         end
       rescue
@@ -235,11 +237,10 @@ module GF
       end
 
       # 通常時はquest_detailに飛ばないとクエストができない
-      # elem = self.exist_element("//div/p/a[contains(@href,'/quest/quest-detail')]", :xpath)
       if self.exist_element("img[src='http://stat100.ameba.jp/vcard/ratio20/images/title/area_h1.jpg']")
         if self.click_element("img[src='http://stat100.ameba.jp/vcard/ratio20/images/quest/btn_challenge.png']")
         else
-          self.log "now you're in area select page.but quest btn not found!"
+          self.log "Now you're in area select page. But quest btn not found!"
           return FALSE
         end
       end
@@ -261,6 +262,7 @@ module GF
         # end
 
         # TODO 判定のロジックがあまり良くないので変えたい
+        # TODO 通常クエスト時に上手く空判定が出来ていない
         self.set_expire QUEST_EMPTY if self.exist_element("//div[@id='outStamina' and @class='popup' and contains(@style, 'position')]", :xpath) #体力切れたらexpireセット
       end
       self.log "quest_exec end."
