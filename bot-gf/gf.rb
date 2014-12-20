@@ -128,6 +128,7 @@ module GF
 
       # 出現中だったらレイドに攻撃
       self.raidboss_appear_exec
+      self.raidboss_appear_hunters_exec
 
       # クエストを走る
       self.quest_exec
@@ -236,39 +237,21 @@ module GF
         return FALSE
       end
 
-      # 通常時はquest_detailに飛ばないとクエストができない
-      if self.exist_element("img[src='http://stat100.ameba.jp/vcard/ratio20/images/title/area_h1.jpg']")
-        if self.click_element("img[src='http://stat100.ameba.jp/vcard/ratio20/images/quest/btn_challenge.png']")
-        else
-          self.log "Now you're in area select page. But quest btn not found!"
-          return FALSE
-        end
-      end
       # 通常時
-      while(self.click_element('#btnFight'))
-        sleep 3
-        # もし3秒経ってもボタンが有効になってなかったら終了
-        if self.exist_element('#btnFight.relative.noneTapColor.sprite2_btnSearchOff') || self.exist_element('#btnFight.relative.noneTapColor.sprite2_btnSearchUpoff')
-          break
-        end
-
-        # TODO Touch Bonus
-        # if self.exist_element("//div[@id='bustUpGirlBtn' and @class='btnBlueGrn' and contains(@style, 'position')]", :xpath) #Touchボタンがあったら
-          # self.log "Touch start!"
-          # # style="position: absolute; width: 131px; height: 53px; overflow: hidden; left: 167px; top: 213px; background-image: url(http://stat100.ameba.jp/vcard/ratio20/images/animation/quest/touchbonus/common_voiceAlertOffBtn.png); background-position: 0px 0px;"のdiv要素（音声OFFのまま）をクリック
-          # self.flash_knock(4)
-          #position: absolute; width: 271px; height: 53px; overflow: hidden; left: 25px; top: 308px; background-image: url(http://stat100.ameba.jp/vcard/ratio20/images/animation/quest/touchbonus/resultQuestBtn.png); background-position: 0px 0px;（登校にもどる）をクリック,最悪リダイレクト
-
-        # end
-
-        # TODO 判定のロジックがあまり良くないので変えたい
-        # TODO 通常クエスト時に上手く空判定が出来ていない
-        self.set_expire QUEST_EMPTY if self.exist_element("//div[@id='outStamina' and @class='popup' and contains(@style, 'position')]", :xpath) #体力切れたらexpireセット
+      if self.quest_normal_check
+        ret =  self.quest_normal_exec
+      # おねがいハンターズ
+      elsif self.quest_hunters_check
+        ret = self.quest_hunters_exec
+      else
+        # なかったら悪xxレイドイベントと仮定して走ってみる
+        ret = self.quest_raidevent_exec
       end
       self.log "quest_exec end."
-      TRUE
+      ret
     end
 
+    # レイドイベントボス出現中なら倒す
     def raidboss_appear_exec
       self.log "raidboss_appear_exec start."
       return if self.check_expire RAIDBOSS_EMPTY #期限内だったらやらない
@@ -279,6 +262,22 @@ module GF
       end
       self.log "raidboss_appear_exec end."
       self.move MYPAGE_URL
+    end
+
+    # お願いハンターズのレイドイベントボス出現中なら倒す
+    def raidboss_appear_hunters_exec
+      self.log "raidboss_appear_hunters_exec start."
+      return if self.check_expire RAIDBOSS_EMPTY #期限内だったらやらない
+      if self.exist_element("//a[contains(@href, '/raidwar/status?eventId=')]", :xpath) #Touchボタンがあったら
+        if self.click_element("//div/a[contains(@href, '/raidwar/status?eventId=')]", :xpath)
+          while self.click_link('救出する')
+            break unless self.vs_raidboss_exec # 救出が無理だったら諦める
+          end
+        end
+        self.move MYPAGE_URL
+      end
+
+      self.log "raidboss_appear_hunters_exec end."
     end
 
     # なんらかのアクションに成功したらTRUE
@@ -303,6 +302,70 @@ module GF
         help_request = self.click_element('#js_rescueUpCloseButton')
       end
       help_request
+    end
+
+    # 通常時クエスト
+    def quest_normal_check
+      self.exist_element("img[src='http://stat100.ameba.jp/vcard/ratio20/images/title/area_h1.jpg']")
+    end
+
+    def quest_normal_exec
+      self.log "quest_normal_exec start."
+      # 通常時はquest_detailに飛ばないとクエストができない
+      if ! self.click_element("img[src='http://stat100.ameba.jp/vcard/ratio20/images/quest/btn_challenge.png']")
+        self.log "Now you're in area select page. But quest btn not found!"
+        return FALSE
+      end
+      self.run_quest
+      self.log "quest_normal_exec end."
+    end
+
+    # おねがいハンターズ
+    def quest_hunters_check
+      # おねがいハンターズ時はquest_detailに飛ばないとクエストができない
+      self.exist_element("//a[contains(@href, '/raidwar/quest/detail?eventId=')]", :xpath) #Touchボタンがあったら
+    end
+
+    def quest_hunters_exec
+      self.log "quest_hunters_exec start."
+      if ! self.click_element("//a[contains(@href, '/raidwar/quest/detail?eventId=')]", :xpath)
+        self.log "Now you're in raid event page. But quest btn not found!"
+        return FALSE
+      end
+      self.run_quest('#js_btnFight')
+      self.log "quest_hunters_exec end."
+
+    end
+
+    def quest_raidevent_exec
+      self.log "quest_raidevent_exec start."
+      self.run_quest
+      self.log "quest_raidevent_exec end."
+    end
+
+    def run_quest(btn_id = '#btnFight')
+      # 通常時
+      while(self.click_element(btn_id))
+        sleep 3
+        # もし3秒経ってもボタンが有効になってなかったら終了
+        if self.exist_element('#btnFight.relative.noneTapColor.sprite2_btnSearchOff') || self.exist_element('#btnFight.relative.noneTapColor.sprite2_btnSearchUpoff') || self.exist_element('#btnFight.sprite1_btnFightOff')
+          break
+        end
+
+        # TODO Touch Bonus
+        # if self.exist_element("//div[@id='bustUpGirlBtn' and @class='btnBlueGrn' and contains(@style, 'position')]", :xpath) #Touchボタンがあったら
+          # self.log "Touch start!"
+          # # style="position: absolute; width: 131px; height: 53px; overflow: hidden; left: 167px; top: 213px; background-image: url(http://stat100.ameba.jp/vcard/ratio20/images/animation/quest/touchbonus/common_voiceAlertOffBtn.png); background-position: 0px 0px;"のdiv要素（音声OFFのまま）をクリック
+          # self.flash_knock(4)
+          #position: absolute; width: 271px; height: 53px; overflow: hidden; left: 25px; top: 308px; background-image: url(http://stat100.ameba.jp/vcard/ratio20/images/animation/quest/touchbonus/resultQuestBtn.png); background-position: 0px 0px;（登校にもどる）をクリック,最悪リダイレクト
+
+        # end
+
+        # TODO 判定のロジックがあまり良くないので変えたい
+        # TODO 通常クエスト時に上手く空判定が出来ていない
+        self.set_expire QUEST_EMPTY if self.exist_element("//div[@id='outStamina' and @class='popup' and contains(@style, 'position')]", :xpath) #体力切れたらexpireセット
+      end
+      TRUE
     end
   end
 end
