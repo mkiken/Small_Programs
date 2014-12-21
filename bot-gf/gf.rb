@@ -257,7 +257,7 @@ module GF
       return if self.check_expire RAIDBOSS_EMPTY #期限内だったらやらない
       if self.click_element('p.raidBossAppear')
         while self.click_link('救出する')
-          break unless self.vs_raidboss_exec # 救出が無理だったら諦める
+          break unless self.vs_raidboss_exec('div.sprite1_battleBtn11', 'a.btn.btnPrimary.w96.jsTouchActive.battleBtn.relative.btnDisabled') # 救出が無理だったら諦める
         end
       end
       self.log "raidboss_appear_exec end."
@@ -269,9 +269,10 @@ module GF
       self.log "raidboss_appear_hunters_exec start."
       return if self.check_expire RAIDBOSS_EMPTY #期限内だったらやらない
       if self.exist_element("//a[contains(@href, '/raidwar/status?eventId=')]", :xpath) #Touchボタンがあったら
-        if self.click_element("//div/a[contains(@href, '/raidwar/status?eventId=')]", :xpath)
-          while self.click_link('救出する')
-            break unless self.vs_raidboss_exec # 救出が無理だったら諦める
+        # if self.click_element("//div/a[contains(@href, '/raidwar/status?eventId=')]", :xpath)
+        if self.click_element("//img[contains(@src, 'boss_appear.png')]", :xpath)
+          while self.click_link('捕まえる')
+            break unless self.vs_raidboss_exec('a.btn.btn.btnPrimary.jsTouchActive.battleBtn', '#js_pushCandyPower') # 救出が無理だったら諦める
           end
         end
         self.move MYPAGE_URL
@@ -281,16 +282,16 @@ module GF
     end
 
     # なんらかのアクションに成功したらTRUE
-    def vs_raidboss_exec
+    def vs_raidboss_exec(btn_css, expire_css)
       self.log "vs_raidboss_exec start."
       help_request = self.request_help
       battle_done = FALSE
-      while self.click_element('div.sprite1_battleBtn11')
+      while self.click_element(btn_css)
         self.flash_knock
         battle_done = TRUE
       end
       help_request |= self.request_help
-      self.set_expire RAIDBOSS_EMPTY if self.exist_element("a.btn.btnPrimary.w96.jsTouchActive.battleBtn.relative.btnDisabled") #point切れたらexpireセット
+      self.set_expire RAIDBOSS_EMPTY if self.exist_element(expire_css) #point切れたらexpireセット
       self.log "vs_raidboss_exec end."
       help_request | battle_done
     end
@@ -348,7 +349,10 @@ module GF
       while(self.click_element(btn_id))
         sleep 3
         # もし3秒経ってもボタンが有効になってなかったら終了
-        if self.exist_element('#btnFight.relative.noneTapColor.sprite2_btnSearchOff') || self.exist_element('#btnFight.relative.noneTapColor.sprite2_btnSearchUpoff') || self.exist_element('#btnFight.sprite1_btnFightOff')
+        if self.exist_element('#btnFight.relative.noneTapColor.sprite2_btnSearchOff') ||
+          self.exist_element('#btnFight.relative.noneTapColor.sprite2_btnSearchUpoff') ||
+          self.exist_element('#btnFight.sprite1_btnFightOff') ||
+          self.exist_element('#js_btnFight.inlineBlock.btnFight.btnFightOff')
           break
         end
 
