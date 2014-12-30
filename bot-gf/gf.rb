@@ -243,6 +243,9 @@ module GF
       # おねがいハンターズ
       elsif self.quest_hunters_check
         ret = self.quest_hunters_exec
+      # 聖櫻学園物語
+      elsif self.quest_story_check
+        ret = self.quest_story_exec
       else
         # なかったら悪xxレイドイベントと仮定して走ってみる
         ret = self.quest_raidevent_exec
@@ -333,10 +336,40 @@ module GF
         self.log "Now you're in raid event page. But quest btn not found!"
         return FALSE
       end
-      self.run_quest('#js_btnFight')
+      self.run_quest('#js_btnFight', ['#js_btnFight.inlineBlock.btnFight.btnFightOff'])
       self.log "quest_hunters_exec end."
-
     end
+
+    # 聖櫻学園物語
+    def quest_story_check
+      self.exist_element("//img[contains(@src, 'stagebtn_on_')]", :xpath) #Touchボタンがあったら
+    end
+
+    def quest_story_exec
+      self.log "quest_story_exec start."
+      if ! self.click_element("//img[contains(@src, 'stagebtn_on_')]", :xpath)
+        self.log "Now you're in quest story page. But quest btn not found!"
+        return FALSE
+      end
+      while TRUE
+        self.run_quest('div#js_questTouchArea.questTouchArea', [])
+        if self.exist_element('#js_normalItemButton') &&
+          self.click_element('#js_normalItemButton')
+            self.flash_knock
+            if self.exist_element("//a[contains(@href, '/story/quest?eventId=')]", :xpath)
+              self.click_element("//a[contains(@href, '/story/quest?eventId=')]", :xpath)
+            else
+              break
+            end
+        # TODO 「手伝いに行く」の時にうまく遷移したい
+        else
+          break
+        end
+      end
+
+      self.log "quest_story_exec end."
+    end
+
 
     def quest_raidevent_exec
       self.log "quest_raidevent_exec start."
@@ -344,17 +377,15 @@ module GF
       self.log "quest_raidevent_exec end."
     end
 
-    def run_quest(btn_id = '#btnFight')
+    def run_quest(btn_id = '#btnFight',
+      end_ids = ['#btnFight.relative.noneTapColor.sprite2_btnSearchOff',
+                 '#btnFight.relative.noneTapColor.sprite2_btnSearchUpoff',
+                 '#btnFight.sprite1_btnFightOff'])
       # 通常時
       while(self.click_element(btn_id))
         sleep 3
         # もし3秒経ってもボタンが有効になってなかったら終了
-        if self.exist_element('#btnFight.relative.noneTapColor.sprite2_btnSearchOff') ||
-          self.exist_element('#btnFight.relative.noneTapColor.sprite2_btnSearchUpoff') ||
-          self.exist_element('#btnFight.sprite1_btnFightOff') ||
-          self.exist_element('#js_btnFight.inlineBlock.btnFight.btnFightOff')
-          break
-        end
+        break if end_ids.inject(false){|is_end, e| is_end || self.exist_element(e)}
 
         # TODO Touch Bonus
         # if self.exist_element("//div[@id='bustUpGirlBtn' and @class='btnBlueGrn' and contains(@style, 'position')]", :xpath) #Touchボタンがあったら
