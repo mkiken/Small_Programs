@@ -6,32 +6,40 @@ module GF
 
   class GF
 
-    FREE_CUPID = 1
-    SMILE_CUPID = 2
-    ARBEIT = 3
-    QUEST_EMPTY = 4
-    RAIDBOSS_EMPTY = 5
-    AMEBA_HOME_URL = 'http://vcard.ameba.jp/'
-    MYPAGE_URL = 'http://vcard.ameba.jp/mypage'
+    FREE_CUPID       = 1
+    SMILE_CUPID      = 2
+    ARBEIT           = 3
+    QUEST_EMPTY      = 4
+    RAIDBOSS_EMPTY   = 5
+    AMEBA_HOME_URL   = 'http://vcard.ameba.jp/'
+    MYPAGE_URL       = 'http://vcard.ameba.jp/mypage'
     DEFAULT_MAX_BEAT = 4
+    TOUCH_NUM        = 3
 
     # コンストラクタ
     def initialize
       # メインループの最大回転数（処理の回数）
       @main_loop_max = 10000000
       @expire_time = {
-        FREE_CUPID => 60 * 60 * 24, # 無料キューピッドは1日
-        SMILE_CUPID => 60 * 60 * 8, # スマイルキューピッドは8時間
-        ARBEIT => 60 * 60, # アルバイトは1時間
-        QUEST_EMPTY => 60 * 20, #クエストはとりあえず20分にしてみる
+        FREE_CUPID     => 60 * 60 * 12, # 無料キューピッドは12時間
+        SMILE_CUPID    => 60 * 30, # スマイルキューピッドは30分
+        ARBEIT         => 60 * 60, # アルバイトは1時間
+        QUEST_EMPTY    => 60 * 20, #クエストはとりあえず20分にしてみる
         RAIDBOSS_EMPTY => 60 * 3 #レイドはとりあえず3分にしてみる
       }.freeze
       @exec_timestamp = {
-        FREE_CUPID => nil,
-        SMILE_CUPID => nil,
-        ARBEIT => nil,
-        QUEST_EMPTY => nil,
+        FREE_CUPID     => nil,
+        SMILE_CUPID    => nil,
+        ARBEIT         => nil,
+        QUEST_EMPTY    => nil,
         RAIDBOSS_EMPTY => nil,
+      }
+      @const_to_str = {
+        FREE_CUPID     => 'FREE_CUPID',
+        SMILE_CUPID    => 'SMILE_CUPID',
+        ARBEIT         => 'ARBEIT',
+        QUEST_EMPTY    => 'QUEST_EMPTY',
+        RAIDBOSS_EMPTY => 'RAIDBOSS_EMPTY',
       }
     end
 
@@ -152,6 +160,11 @@ module GF
       self.log "set_expire, key=#{key}, execute_time=#{@exec_timestamp[key]}"
     end
 
+    def remove_expire(key)
+      @exec_timestamp[key] = nil
+      self.log "remove_expire, key=#{key}"
+    end
+
     # trueならまだ有効期限内
     def check_expire(key)
       self.log "check_expire, key=#{key}, execute_time=#{@exec_timestamp[key]}"
@@ -191,11 +204,11 @@ module GF
       self.set_expire ARBEIT
       self.click_element('#mail')
       if self.click_link('アルバイトが終了しました')
-        sleep 10
+        sleep 3
         self.click_element('p.js_closeBtn.closePopBtn') #Amebaポイントのポップアップ消去
         sleep 1
         self.click_link('引き続きバイトをする')
-        sleep 7 # ポップアップが出ている確率をあげるため少し長めに取る
+        sleep 3 # ポップアップが出ている確率をあげるため少し長めに取る
         self.click_element('a#accompanySubmitBtn.btnPink.w135')
         self.flash_knock
       end
@@ -304,7 +317,6 @@ module GF
       )
     end
 
-    # TODO 動作未確認
     def help_exec
       self._raidboss_appear_exec(
         'help_exec',
@@ -414,15 +426,19 @@ module GF
       self.log "quest_raidevent_exec end."
     end
 
-    # TODO 動作未確認
     def touch_bonus_exec
       return unless self.exist_element('div#bustUpGirlBtn.btnBlueGrn')
       self.click_element('div#bustUpGirlBtn.btnBlueGrn')
       self.log "Touch start!"
       return unless self.click_element("//div[contains(@style, 'background-image: url(http://stat100.ameba.jp/vcard/ratio20/images/animation/quest/touchbonus/common_voiceAlertOffBtn.png);')]", :xpath) #Touchボタンがあったら
       self.log "voice off."
-      # TODO これでは駄目。違う方法が必要
-      # self.flash_knock(4)
+      sleep(1)
+      if self.exist_element('div#enchant-stage')
+        TOUCH_NUM.times{
+          self.click_element('div#enchant-stage');
+        }
+      end
+      sleep(3)
 
       # クエストに戻る
       click_element('div#quest.btnGlue') if exist_element('#quest.btnGlue')
@@ -435,6 +451,7 @@ module GF
                  '#btnFight.sprite1_btnFightOff'])
       # 通常時
       while(self.click_element(btn_id))
+        self.remove_expire RAIDBOSS_EMPTY #クエストを走ったらバトルポイント回復があるかもしれない
         sleep 3
         # もし3秒経ってもボタンが有効になってなかったら終了
         self.touch_bonus_exec
