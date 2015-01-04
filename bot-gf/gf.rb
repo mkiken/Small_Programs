@@ -157,17 +157,17 @@ module GF
 
     def set_expire(key)
       @exec_timestamp[key] = Time.now
-      self.log "set_expire, key=#{key}, execute_time=#{@exec_timestamp[key]}"
+      self.log "set_expire, key=#{@const_to_str[key]}, execute_time=#{@exec_timestamp[key]}"
     end
 
     def remove_expire(key)
       @exec_timestamp[key] = nil
-      self.log "remove_expire, key=#{key}"
+      self.log "remove_expire, key=#{@const_to_str[key]}"
     end
 
     # trueならまだ有効期限内
     def check_expire(key)
-      self.log "check_expire, key=#{key}, execute_time=#{@exec_timestamp[key]}"
+      self.log "check_expire, key=#{@const_to_str[key]}, execute_time=#{@exec_timestamp[key]}"
       return false if @exec_timestamp[key].nil?
       now = Time.now
       diff = (now - @exec_timestamp[key]).to_i.abs
@@ -427,8 +427,7 @@ module GF
     end
 
     def touch_bonus_exec
-      return unless self.exist_element('div#bustUpGirlBtn.btnBlueGrn')
-      self.click_element('div#bustUpGirlBtn.btnBlueGrn')
+      return unless self.click_element('div#bustUpGirlBtn.btnBlueGrn')
       self.log "Touch start!"
       return unless self.click_element("//div[contains(@style, 'background-image: url(http://stat100.ameba.jp/vcard/ratio20/images/animation/quest/touchbonus/common_voiceAlertOffBtn.png);')]", :xpath) #Touchボタンがあったら
       self.log "voice off."
@@ -441,7 +440,7 @@ module GF
       sleep(3)
 
       # クエストに戻る
-      click_element('div#quest.btnGlue') if exist_element('#quest.btnGlue')
+      click_element('div#quest.btnBlue') if exist_element('div#quest.btnBlue')
       self.log "touch End."
     end
 
