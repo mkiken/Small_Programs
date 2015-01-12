@@ -185,37 +185,38 @@ module GF
     def _check_cupid(cupid_name, expire_constant, news_link_text, cupid_text)
       self.log "check_#{cupid_name}_cupid start."
       return if self.check_expire expire_constant #期限内だったらやらない
-      self.set_expire expire_constant
       self.click_element('#mail')
       if self.click_link(news_link_text)
         sleep 1
         self.click_link(cupid_text)
         sleep 10
         self.flash_knock
+        self.set_expire expire_constant
       end
       self.log "check_#{cupid_name}_cupid end."
       self.move MYPAGE_URL
     end
 
-    # TODO 動作未確認
     def check_arbeit
       self.log "check_arbeit start."
       return if self.check_expire ARBEIT #期限内だったらやらない
-      self.set_expire ARBEIT
-      self.click_element('#mail')
-      if self.click_link('アルバイトが終了しました')
-        sleep 3
-        self.click_element('p.js_closeBtn.closePopBtn') #Amebaポイントのポップアップ消去
-        sleep 1
-        self.click_link('引き続きバイトをする')
-        sleep 3 # ポップアップが出ている確率をあげるため少し長めに取る
-        self.click_element('a#accompanySubmitBtn.btnPink.w135')
-        self.flash_knock
+      if (self.click_element('#mail') and self.click_link('アルバイトが終了しました')) or
+         self.click_element('a#finishJobBtn.btnPink')
+        self.arbeit_exec
       end
       self.log "check_arbeit end."
       self.move MYPAGE_URL
     end
 
+    def arbeit_exec
+      sleep 2
+      self.click_element('p.js_closeBtn.closePopBtn') #Amebaポイントのポップアップ消去
+      sleep 1
+      self.click_link('引き続きバイトをする')
+      sleep 2 # ポップアップが出ている確率をあげるため少し長めに取る
+      self.click_element('a#accompanySubmitBtn.btnPink.w135')
+      self.set_expire ARBEIT
+    end
 
     # canvas 要素があるみたいならノックして次の画面へ
     def flash_knock(count=1)
