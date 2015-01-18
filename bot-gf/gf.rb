@@ -13,6 +13,7 @@ module GF
     RAIDBOSS_EMPTY   = 5
     AMEBA_HOME_URL   = 'http://vcard.ameba.jp/'
     MYPAGE_URL       = 'http://vcard.ameba.jp/mypage'
+    QUEST_URL  = 'http://vcard.ameba.jp/quest'
     DEFAULT_MAX_BEAT = 4
     TOUCH_NUM        = 3
 
@@ -142,6 +143,8 @@ module GF
       self.check_smile_cupid # スマイルキューピッド
       self.check_arbeit # アルバイト
 
+      self.clubcup_exec
+
       # 出現中だったらレイドに攻撃
       while true
         break unless
@@ -249,7 +252,12 @@ module GF
     def quest_exec
       self.log "quest_exec start."
       return false if self.check_expire QUEST_EMPTY #期限内だったらやらない
-      self.flash_knock
+      # self.flash_knock
+
+      # お悩み解決隊は未対応なので普通のクエストをやる
+      if self.quest_tactics_check
+        self.quest_select_stage
+      end
 
       if self.click_element('#js_questBtn>a') == false
         self.log "quest button not found. quest_exec end."
@@ -420,6 +428,25 @@ module GF
       self.log "quest_story_exec end."
     end
 
+    # お悩み解決隊チェック
+    def quest_tactics_check
+      # self.exist_element("img[src='http://stat100.ameba.jp/vcard/ratio20/images/title/area_h1.jphttp://stat100.ameba.jp/vcard/ratio20/images/mypage/btn_txt/controller_quest_tactics.png']")
+      self.exist_element("//img[contains(@src, 'controller_quest_tactics')]", :xpath)
+    end
+
+    def quest_select_stage
+      self.log "quest_select_stage start."
+      self.move QUEST_URL
+      return false unless self.exist_element("//a[contains(@href, 'quest/quest-stage-list?questId=')]", :xpath)
+      if self.click_element("//a[contains(@href, 'quest/quest-stage-list?questId=')]", :xpath)
+        self.quest_normal_exec
+      else
+        return false
+      end
+      self.log "quest_select_stage end."
+
+    end
+
 
     def quest_raidevent_exec
       self.log "quest_raidevent_exec start."
@@ -463,5 +490,23 @@ module GF
       end
       true
     end
-  end
-end
+
+    # 勧誘バトル
+    def clubcup_exec()
+      self.log "clubcup_exec start."
+      return false if self.check_expire QUEST_EMPTY #期限内だったらやらない
+      return false unless self.exist_element('#clubcupAlert') or self.exist_element('#clubcupAlertSuperiority')
+
+      result = false
+      if self.click_element('#clubcupAlert') or self.exist_element('#clubcupAlertSuperiority')
+        if self.click_element('div.prm_wrapper.mb10.ml5.adjQuestBtn')
+          result |= self.run_quest
+        end
+      end
+      self.log "clubcup_exec end."
+      self.move MYPAGE_URL
+      result
+    end
+
+  end #class
+end #module
