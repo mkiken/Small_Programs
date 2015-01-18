@@ -256,7 +256,7 @@ module GF
 
       # お悩み解決隊は未対応なので普通のクエストをやる
       if self.quest_tactics_check
-        self.quest_select_stage
+        return self.quest_select_stage
       end
 
       if self.click_element('#js_questBtn>a') == false
