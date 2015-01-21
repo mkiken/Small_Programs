@@ -385,7 +385,7 @@ module GF
     # おねがいハンターズ
     def quest_hunters_check
       # おねがいハンターズ時はquest_detailに飛ばないとクエストができない
-      self.exist_element("//a[contains(@href, '/raidwar/quest/detail?eventId=')]", :xpath) #Touchボタンがあったら
+      self.exist_element("//a[contains(@href, '/raidwar/quest/detail?eventId=')]", :xpath)
     end
 
     def quest_hunters_exec
@@ -400,7 +400,7 @@ module GF
 
     # 聖櫻学園物語
     def quest_story_check
-      self.exist_element("//img[contains(@src, 'stagebtn_on_')]", :xpath) #Touchボタンがあったら
+      self.exist_element("//img[contains(@src, 'stagebtn_on_')]", :xpath)
     end
 
     def quest_story_exec
@@ -457,19 +457,15 @@ module GF
     def touch_bonus_exec
       return unless self.click_element('div#bustUpGirlBtn.btnBlueGrn')
       self.log "Touch start!"
-      return unless self.click_element("//div[contains(@style, 'background-image: url(http://stat100.ameba.jp/vcard/ratio20/images/animation/quest/touchbonus/common_voiceAlertOffBtn.png);')]", :xpath) #Touchボタンがあったら
+      return unless self.click_element("//div[contains(@style, 'background-image: url(http://stat100.ameba.jp/vcard/ratio20/images/animation/quest/touchbonus/common_voiceAlertOffBtn.png);')]", :xpath)
       self.log "voice off."
       sleep(1)
       if self.exist_element('div#enchant-stage')
-        TOUCH_NUM.times{
-          self.click_element('div#enchant-stage');
-        }
+        self.log "touch end. refresh..."
+        @driver.navigate.refresh
+      else
+        self.log "touch fail..."
       end
-      sleep(3)
-
-      # クエストに戻る
-      click_element('div#quest.btnBlue') if exist_element('div#quest.btnBlue')
-      self.log "touch End."
     end
 
     def run_quest(btn_id = '#btnFight',
