@@ -84,8 +84,12 @@ module GF
     end
 
     def move(url)
-      @driver.navigate.to url
-      self.log "move to " + url
+      begin
+        @driver.navigate.to url
+        self.log "move to #{url}"
+      rescue
+        self.log "couldn't move to #{url}..."
+      end
     end
 
     def input_text(field_id, text)
