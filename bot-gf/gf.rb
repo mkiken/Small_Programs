@@ -93,7 +93,7 @@ module GF
     end
 
     def input_text(field_id, text)
-      element = @driver.find_element(:name, field_id)
+      element = self.find_element(field_id, :name)
       if element.nil?
         raise ArgumentError, "invalid field_id =>" + field_id
       end
@@ -101,10 +101,18 @@ module GF
       element.send_keys(text)
     end
 
+    def find_element(target, selector = :css)
+      return @driver.find_element(selector, target)
+    end
+
+    def find_elements(target, selector = :css)
+      return @driver.find_elements(selector, target)
+    end
+
 
     def exist_element(target_css, selector=:css)
       begin
-        target = @driver.find_element(selector, target_css)
+        target = self.find_element(target_css, selector)
         if target.nil?
           return false
         end
@@ -120,17 +128,25 @@ module GF
 
     def click_element(target_css, selector=:css)
       begin
-        target_btn = @driver.find_element(selector, target_css)
-        # unless target_btn.enabled?
-          # self.log "target [#{target_css}] found. but it's disabled."
-          # return false
-        # end
+        target_btn = self.find_element(target_css, selector)
         target_btn.click
       rescue
         self.log "click fail. invalid target => " + target_css
         return false
       end
       self.log "jump to => " + target_css
+      sleep 1
+      true
+    end
+
+    def click_target(target)
+      begin
+        target.click
+      rescue
+        self.log "click fail. invalid target => " + target.inspect
+        return false
+      end
+      self.log "jump to => " + target.inspect
       sleep 1
       true
     end
@@ -230,7 +246,7 @@ module GF
       self.log 'flash_knock start.'
       begin
         current_url = @driver.current_url
-        canvas = @driver.find_element(:css, '#canvas')
+        canvas = self.find_element('#canvas')
         if canvas
           cnt = 0 # 無限ループ対策
           while current_url == @driver.current_url and cnt <= 10 do
@@ -404,12 +420,22 @@ module GF
 
     # 聖櫻学園物語
     def quest_story_check
-      self.exist_element("//img[contains(@src, 'stagebtn_on_')]", :xpath)
+      self.exist_element("div.topGaugeHeart")
     end
 
     def quest_story_exec
       self.log "quest_story_exec start."
-      unless self.click_element("//img[contains(@src, 'stagebtn_on_')]", :xpath)
+      stages = self.find_elements('div.topGaugeHeart')
+      select_stage = nil
+      stages.each{|stage|
+        select_stage = stage
+        break if stage.text != 'MAX'
+      }
+      if select_stage.nil?
+        self.log "Now you're in quest story page. But quest btn not found!"
+        return false
+      end
+      unless self.click_target select_stage
         self.log "Now you're in quest story page. But quest btn not found!"
         return false
       end

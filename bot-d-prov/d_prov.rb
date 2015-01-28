@@ -223,7 +223,7 @@ module D_prov
         count = 0
         while self.click_element('div#pnovel-click-area.pnovel-click-area')
           count += 1
-          self.log 'click story flash : #{count}.'
+          self.log "click story flash : #{count}."
           sleep 3
         end
       end
