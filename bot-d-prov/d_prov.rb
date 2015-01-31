@@ -39,7 +39,7 @@ module D_prov
     def go_to_mypage
       self.log 'go_to_mypage.'
       self.move TOP_URL
-      unless self.click_element("//img[contains(@src, 'http://www.drapro.dmmgames.com/img/image/sp/ui/top/default/')]", :xpath)
+      unless self.click_element("//a[contains(@href, 'http://www.drapro.dmmgames.com/mypage?')]", :xpath)
         self.log "couldn't move to mypage."
         # exit
       end
