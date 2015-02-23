@@ -21,11 +21,11 @@ end
 
 def main
   driver       = get_chrome_driver
-  dmm_id       = 'YOUR_AMEBA_ID'
-  dmm_password = 'YOUR_AMEBA_PASSWORD'
+  ameba_id       = 'YOUR_AMEBA_ID'
+  ameba_password = 'YOUR_AMEBA_PASSWORD'
   p_connect       = P_connect::P_connect.new
   extend_logging p_connect
-  p_connect.setting(driver, dmm_id, dmm_password, 10000000)
+  p_connect.setting(driver, ameba_id, ameba_password, 10000000)
   p_connect.play
 
   # 終了時にドライバーを閉じる

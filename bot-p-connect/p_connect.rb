@@ -175,6 +175,8 @@ module P_connect
       # レイド
       result |= self.raid_exec
 
+      sleep 3
+
       # 冒険
       result |= self.quest_exec(5)
     end
