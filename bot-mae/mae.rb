@@ -231,12 +231,6 @@ module Mae
       end
     end
 
-    def vs_raidboss_exec
-      result = self.click_element('div.box-child > a.btn-attack-0')
-      result |= self.click_element('div.box-child.padding-r10 > a.btn-attack-20')
-      return result
-    end
-
     def help_raidboss_exec
       return false unless self.click_element('div.btn-raid-rescue')
       # 未救援レイド
@@ -250,7 +244,15 @@ module Mae
 
     def own_raidboss_exec
       return false unless self.click_element('div.btn-raid-appear')
+      # 救援を出せたら出す
+      return true if self.click_element('div.blink-object')
       vs_raidboss_exec
+    end
+
+    def vs_raidboss_exec
+      result = self.click_element('div.box-child > a.btn-attack-0')
+      result |= self.click_element('div.box-child.padding-r10 > a.btn-attack-20')
+      return result
     end
 
   end #class
