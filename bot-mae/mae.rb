@@ -24,8 +24,8 @@ module Mae
         QUEST_EMPTY => 'QUEST_EMPTY'
       }
       @parameter_list = {
-        'QUEST_EXEC_COUNT' => 5, #1回の行動でクエストを行う回数
-        'RAID_EXEC_COUNT' => 5 #1回の行動でレイドを殴る回数
+        'QUEST_EXEC_COUNT' => 1, # 1回の行動でクエストを行う回数
+        'RAID_EXEC_COUNT'  => 5  # 1回の行動でレイドを殴る回数
       }
     end
 
@@ -190,13 +190,19 @@ module Mae
       result |= self.flash_knock # canvas ページにいるならノックして次に進む
 
       # レイド
-      result |= self.raid_exec(@parameter_list['RAID_EXEC_COUNT'])
+      raid_result = self.raid_exec(@parameter_list['RAID_EXEC_COUNT'])
+      result |= raid_result
 
       sleep 3
-
       self.go_mypage
-      # 冒険
-      result |= self.quest_exec(@parameter_list['QUEST_EXEC_COUNT'])
+
+      # レイド未受け取り報酬
+      result |= receive_not_received_raid_reward
+      sleep 1
+      self.go_mypage
+
+      # レイドを叩けていなかったら探索
+      result |= self.quest_exec(@parameter_list['QUEST_EXEC_COUNT']) unless raid_result
     end
 
     def quest_exec(limit)
@@ -226,17 +232,22 @@ module Mae
 
     def raid_exec(limit)
       count = 0
-      while count < limit &&(self.help_raidboss_exec || self.own_raidboss_exec)
+      while count < limit && (self.help_raidboss_exec || self.own_raidboss_exec)
         count += 1
       end
+      count > 0
     end
 
     def help_raidboss_exec
       return false unless self.click_element('div.btn-raid-rescue')
       # 未救援レイド
-      raid_help_button = self.click_element('div.btn-wrap-grad-gold.width-100 > a.btn-inner.font-size-normal.bg-grad-red')
-      unless raid_help_button
-        return false
+      new_raid_help_button = self.click_element('div.btn-wrap-grad-gold.width-100 > a.btn-inner.font-size-normal.bg-grad-red')
+      unless new_raid_help_button
+        # 救援済みレイド
+        raid_help_button = self.click_element('div.btn-wrap-grad-gold.width-100 > a.btn-inner.font-size-normal')
+        unless raid_help_button
+          return false
+        end
       end
       vs_raidboss_exec
       return true
@@ -253,6 +264,12 @@ module Mae
       result = self.click_element('div.box-child > a.btn-attack-0')
       result |= self.click_element('div.box-child.padding-r10 > a.btn-attack-20')
       return result
+    end
+
+    def receive_not_received_raid_reward
+      # 新着情報をみる
+      self.click_element('#js_news_popup_open')
+      return false unless self.click_link("未受取レイド報酬があります")
     end
 
   end #class
