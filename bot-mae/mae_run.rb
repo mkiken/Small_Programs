@@ -18,12 +18,13 @@ def get_chrome_driver
 end
 
 def main
-  driver       = get_chrome_driver
+  driver        = get_chrome_driver
   gree_id       = 'YOUR_GREE_ID'
   gree_password = 'YOUR_GREE_PASSWORD'
-  mae       = Mae::Mae.new
+  quest_type    = Mae::Mae::QUEST_TYPE_DAILY
+  mae           = Mae::Mae.new
   extend_logging mae
-  mae.setting(driver, gree_id, gree_password, 10000000)
+  mae.setting(driver, gree_id, gree_password, 10000000, quest_type)
   mae.play
 
   # 終了時にドライバーを閉じる

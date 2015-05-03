@@ -6,9 +6,12 @@ module Mae
 
   class Mae
 
-    GAME_TOP_URL = 'http://x-arthur.gree-pf.net/?use_iframe=false'
-    SNS_HOME_URL = 'https://id.gree.net/login/entry?ignore_sso=1&backto='
-    QUEST_EMPTY      = 1
+    GAME_TOP_URL         = 'http://x-arthur.gree-pf.net/?use_iframe=false'
+    SNS_HOME_URL         = 'https://id.gree.net/login/entry?ignore_sso=1&backto='
+    QUEST_EMPTY          = 1
+    QUEST_TYPE_NORMAL    = 1
+    QUEST_TYPE_DAILY     = 2
+    QUEST_TYPE_SANCTUARY = 3
 
     # コンストラクタ
     def initialize
@@ -43,7 +46,7 @@ module Mae
       end
     end
 
-    def setting(driver, id, pass, max_count)
+    def setting(driver, id, pass, max_count, quest_type)
       # Selenium WebDriver をセットする（必須）
       @driver = driver
       # SNS の ID をセット。
@@ -52,6 +55,8 @@ module Mae
       @pass = pass
       # メインループの最大回転数を変更する
       @main_loop_max = max_count
+      # 征域優先か
+      @quest_type = quest_type
     end
 
     def move(url)
@@ -209,11 +214,26 @@ module Mae
       return false if check_expire(QUEST_EMPTY)
 
       result = self.click_element('a.btn-quest-inner')
-      # 曜日クエストに行く
-      result &= self.click_element('a.tab-child-inner')
+      if @quest_type == QUEST_TYPE_SANCTUARY
+        tab_list = self.find_elements('a.tab-child-inner')
+        tab_list[1].click
+        result &= true
+      elsif @quest_type == QUEST_TYPE_DAILY
+        # 曜日クエストに行く
+        result &= self.click_element('a.tab-child-inner')
+      elsif @quest_type == QUEST_TYPE_NORMAL
+        result &= true
+      else
+        raise "不明なQUEST_TYPE => #{@quest_type}"
+      end
+
       if result
         limit.times{
-          result |= self.click_element('div.quest-stage-list.margin-auto-t10')
+          if @quest_type == QUEST_TYPE_SANCTUARY
+            result |= self.click_element('div.quest-hegemony-stage-area.margin-auto-t10')
+          elsif @quest_type == QUEST_TYPE_DAILY or @quest_type == QUEST_TYPE_NORMAL
+            result |= self.click_element('div.quest-stage-list.margin-auto-t10')
+          end
           # ボスがいたら殴る
           if self.exist_element('a.btn-attack-0') || self.exist_element('a.btn-attack-20')
             self.vs_raidboss_exec
@@ -240,9 +260,11 @@ module Mae
 
     def help_raidboss_exec
       return false unless self.click_element('div.btn-raid-rescue')
+      sleep 1
       # 未救援レイド
       new_raid_help_button = self.click_element('div.btn-wrap-grad-gold.width-100 > a.btn-inner.font-size-normal.bg-grad-red')
       unless new_raid_help_button
+        sleep 1
         # 救援済みレイド
         raid_help_button = self.click_element('div.btn-wrap-grad-gold.width-100 > a.btn-inner.font-size-normal')
         unless raid_help_button
