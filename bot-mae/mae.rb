@@ -9,6 +9,7 @@ module Mae
     GAME_TOP_URL         = 'http://x-arthur.gree-pf.net/?use_iframe=false'
     SNS_HOME_URL         = 'https://id.gree.net/login/entry?ignore_sso=1&backto='
     QUEST_EMPTY          = 1
+    RAID_EMPTY           = 2
     QUEST_TYPE_NORMAL    = 1
     QUEST_TYPE_DAILY     = 2
     QUEST_TYPE_SANCTUARY = 3
@@ -18,13 +19,16 @@ module Mae
       # メインループの最大回転数（処理の回数）
       @main_loop_max = 10000000
       @expire_time = {
-        QUEST_EMPTY => 15 * 60 # 体力が空になったらクエストをやらない時間
+        QUEST_EMPTY => 15 * 60, # 体力が空になったらクエストをやらない時間
+        RAID_EMPTY  => 15 * 60 # 体力が空になったらレイド討伐をやらない時間
       }.freeze
       @exec_timestamp = {
-        QUEST_EMPTY => nil
+        QUEST_EMPTY => nil,
+        RAID_EMPTY  => nil
       }
       @const_to_str = {
-        QUEST_EMPTY => 'QUEST_EMPTY'
+        QUEST_EMPTY => 'QUEST_EMPTY',
+        RAID_EMPTY  => 'RAID_EMPTY'
       }
       @parameter_list = {
         'QUEST_EXEC_COUNT' => 1, # 1回の行動でクエストを行う回数
@@ -132,10 +136,10 @@ module Mae
 
 
     # canvas 要素があるみたいならノックして次の画面へ
-    def flash_knock(count=1)
+    def flash_knock(target='#canvas', count=1)
       begin
         current_url = @driver.current_url
-        canvas = self.find_element('#canvas')
+        canvas = self.find_element(target)
         if canvas
           cnt = 0 # 無限ループ対策
           while current_url == @driver.current_url and cnt <= 10 do
@@ -228,6 +232,11 @@ module Mae
       end
 
       if result
+        # アセロライベントがあったら
+        if self.click_link('材料をGET!する！')
+          self.flash_knock('div#reel', 5)
+          return true
+        end
         limit.times{
           if @quest_type == QUEST_TYPE_SANCTUARY
             result |= self.click_element('div.quest-hegemony-stage-area.margin-auto-t10')
@@ -247,10 +256,12 @@ module Mae
             @driver.navigate.back
         }
       end
+      self.remove_expire(RAID_EMPTY) if result
       result
     end
 
     def raid_exec(limit)
+      return false if self.check_expire(RAID_EMPTY)
       count = 0
       while count < limit && (self.help_raidboss_exec || self.own_raidboss_exec)
         count += 1
@@ -285,6 +296,7 @@ module Mae
     def vs_raidboss_exec
       result = self.click_element('div.box-child > a.btn-attack-0')
       result |= self.click_element('div.box-child.padding-r10 > a.btn-attack-20')
+      self.set_expire(RAID_EMPTY) unless result
       return result
     end
 
