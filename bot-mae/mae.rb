@@ -10,6 +10,7 @@ module Mae
     SNS_HOME_URL         = 'https://id.gree.net/login/entry?ignore_sso=1&backto='
     QUEST_EMPTY          = 1
     RAID_EMPTY           = 2
+    HELLO_EMPTY          = 3
     QUEST_TYPE_NORMAL    = 1
     QUEST_TYPE_DAILY     = 2
     QUEST_TYPE_SANCTUARY = 3
@@ -19,16 +20,19 @@ module Mae
       # メインループの最大回転数（処理の回数）
       @main_loop_max = 10000000
       @expire_time = {
-        QUEST_EMPTY => 15 * 60, # 体力が空になったらクエストをやらない時間
-        RAID_EMPTY  => 15 * 60 # 体力が空になったらレイド討伐をやらない時間
+        QUEST_EMPTY => 15 * 60, # APが空になったらクエストをやらない時間
+        RAID_EMPTY  => 15 * 60, # BCが空になったらレイド討伐をやらない時間
+        HELLO_EMPTY => 15 * 60  # 1回やったら挨拶をやらない時間
       }.freeze
       @exec_timestamp = {
         QUEST_EMPTY => nil,
-        RAID_EMPTY  => nil
+        RAID_EMPTY  => nil,
+        HELLO_EMPTY  => nil
       }
       @const_to_str = {
         QUEST_EMPTY => 'QUEST_EMPTY',
-        RAID_EMPTY  => 'RAID_EMPTY'
+        RAID_EMPTY  => 'RAID_EMPTY',
+        HELLO_EMPTY => 'HELLO_EMPTY'
       }
       @parameter_list = {
         'QUEST_EXEC_COUNT' => 1, # 1回の行動でクエストを行う回数
@@ -206,7 +210,17 @@ module Mae
       self.go_mypage
 
       # レイド未受け取り報酬
-      result |= receive_not_received_raid_reward
+      result |= self.receive_not_received_raid_reward
+      sleep 1
+      self.go_mypage
+
+      # 未受け取りギフトがあったら受け取る
+      result |= self.receive_gift
+      sleep 1
+      self.go_mypage
+
+      # 挨拶をする
+      result |= self.hello_exec
       sleep 1
       self.go_mypage
 
@@ -261,7 +275,7 @@ module Mae
     end
 
     def raid_exec(limit)
-      return false if self.check_expire(RAID_EMPTY)
+      # return false if self.check_expire(RAID_EMPTY)
       count = 0
       while count < limit && (self.help_raidboss_exec || self.own_raidboss_exec)
         count += 1
@@ -304,6 +318,29 @@ module Mae
       # 新着情報をみる
       self.click_element('#js_news_popup_open')
       return false unless self.click_link("未受取レイド報酬があります")
+    end
+
+    def receive_gift
+      # 新着情報をみる
+      self.click_element('#js_news_popup_open')
+      sleep 1
+      # return false unless self.click_element("//a[contains(@href, 'present')]", :xpath)
+      return false unless self.click_element("//a[contains(text(), '件届いています')]", :xpath)
+      sleep 1
+      result = self.click_link("一括受け取り")
+      sleep 2
+      result
+    end
+
+    # 挨拶をする
+    def hello_exec
+      return false if self.check_expire(HELLO_EMPTY)
+      return false unless self.click_element('div.btn-gacha')
+      sleep 1
+      result = self.click_link("祝福する")
+      sleep 2
+      self.set_expire(HELLO_EMPTY) if result
+      result
     end
 
   end #class
