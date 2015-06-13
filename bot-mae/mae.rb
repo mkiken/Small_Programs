@@ -247,13 +247,14 @@ module Mae
 
       if result
         # アセロライベントがあったら
-        if self.click_link('材料をGET!する！')
-          self.flash_knock('div#reel', 5)
-          return true
-        end
+        # if self.click_link('材料をGET!する！')
+          # self.flash_knock('div#reel', 5)
+          # return true
+        # end
         limit.times{
           if @quest_type == QUEST_TYPE_SANCTUARY
-            result |= self.click_element('div.quest-hegemony-stage-area.margin-auto-t10')
+            # result |= self.click_element('a.display-block > div.quest-hegemony-stage-area.margin-auto-t10')
+            result |= self.click_element("a[href*='quest_exec']")
           elsif @quest_type == QUEST_TYPE_DAILY or @quest_type == QUEST_TYPE_NORMAL
             result |= self.click_element('div.quest-stage-list.margin-auto-t10')
           end
@@ -296,8 +297,7 @@ module Mae
           return false
         end
       end
-      vs_raidboss_exec
-      return true
+      return vs_raidboss_exec
     end
 
     def own_raidboss_exec
