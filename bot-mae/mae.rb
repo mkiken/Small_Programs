@@ -20,9 +20,9 @@ module Mae
       # メインループの最大回転数（処理の回数）
       @main_loop_max = 10000000
       @expire_time = {
-        QUEST_EMPTY => 15 * 60, # APが空になったらクエストをやらない時間
-        RAID_EMPTY  => 15 * 60, # BCが空になったらレイド討伐をやらない時間
-        HELLO_EMPTY => 15 * 60  # 1回やったら挨拶をやらない時間
+        QUEST_EMPTY => 150 * 60, # APが空になったらクエストをやらない時間
+        RAID_EMPTY  => 15 * 60,  # BCが空になったらレイド討伐をやらない時間
+        HELLO_EMPTY => 15 * 60   # 1回やったら挨拶をやらない時間
       }.freeze
       @exec_timestamp = {
         QUEST_EMPTY => nil,
