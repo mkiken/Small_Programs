@@ -254,7 +254,8 @@ module Mae
         limit.times{
           if @quest_type == QUEST_TYPE_SANCTUARY
             # result |= self.click_element('a.display-block > div.quest-hegemony-stage-area.margin-auto-t10')
-            result |= self.click_element("a[href*='quest_exec']")
+            # result |= self.click_element("a[href*='quest_exec']")
+            result |= self.click_element("a[href*='quest_exec'].display-block")
           elsif @quest_type == QUEST_TYPE_DAILY or @quest_type == QUEST_TYPE_NORMAL
             result |= self.click_element('div.quest-stage-list.margin-auto-t10')
           end

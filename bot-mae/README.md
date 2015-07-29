@@ -5,12 +5,16 @@
 ## 使い方
 1. Seleniumをruby gemでインストール
 `gem install selenium-webdriver`
-2. p_connect_run.rbの"YOUR_GREE_ID"と"YOUR_GREE_PASSWORD"を書き換え
+2. config.ymlの"YOUR_GREE_ID"と"YOUR_GREE_PASSWORD"を書き換え
 3. 起動
 `ruby mae_run.rb`
 
 ----
 ## CHANGELOG
+
+### v 0.1.6 (2015-07-30)
+* エラーでexitしても生き返る設定
+* configの別ファイル化
 
 ### v 0.1.5 (2015-06-13)
 * 征域を走らないバグの修正

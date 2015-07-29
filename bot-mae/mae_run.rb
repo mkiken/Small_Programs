@@ -2,6 +2,7 @@
 
 require 'selenium-webdriver'
 require './mae'
+require 'yaml'
 include Mae
 
 # Chrome driver
@@ -10,8 +11,12 @@ def get_chrome_driver
   switches << '--user-agent=Mozilla/5.0 (iPad; CPU OS 8_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12B410 Safari/600.1.4'
   switches << '--app-window-size=512,384 '
 
-  driver = Selenium::WebDriver.for :chrome, :switches => switches
-  # ドライバー共通のタイムアウト設定
+  # http://qiita.com/yooo_gooo/items/50e66aa2624f521183a2
+  client = Selenium::WebDriver::Remote::Http::Default.new
+  client.timeout = 120
+
+  driver = Selenium::WebDriver.for :chrome, :switches => switches, :http_client => client
+# ドライバー共通のタイムアウト設定
   driver.manage.timeouts.implicit_wait = 5 # seconds
   driver
 
@@ -19,16 +24,27 @@ end
 
 def main
   driver        = get_chrome_driver
-  gree_id       = 'YOUR_GREE_ID'
-  gree_password = 'YOUR_GREE_PASSWORD'
-  quest_type    = Mae::Mae::QUEST_TYPE_DAILY
+  config        = YAML.load_file('./config.yml')
+  gree_id       = config['gree_id']
+  gree_password = config['gree_password']
+  quest_type    = config['quest_type']
   mae           = Mae::Mae.new
   extend_logging mae
   mae.setting(driver, gree_id, gree_password, 10000000, quest_type)
-  mae.play
+  exec(mae,1)
 
   # 終了時にドライバーを閉じる
   driver.close
+end
+
+def exec(mae,count)
+  return false if count == 5
+  begin
+    mae.log "#{count}th game start."
+    mae.play
+  rescue
+    exec(mae,count+1)
+  end
 end
 
 # http://ksmakoto.hatenadiary.com/entry/2013/09/25/221810
