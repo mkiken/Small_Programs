@@ -23,27 +23,32 @@ def get_chrome_driver
 end
 
 def main
-  driver        = get_chrome_driver
   config        = YAML.load_file('./config.yml')
   gree_id       = config['gree_id']
   gree_password = config['gree_password']
   quest_type    = config['quest_type']
-  mae           = Mae::Mae.new
-  extend_logging mae
-  mae.setting(driver, gree_id, gree_password, 10000000, quest_type)
-  exec(mae,1)
-
-  # 終了時にドライバーを閉じる
-  driver.close
+  max_count     = config['max_count']
+  exec(gree_id, gree_password, quest_type, max_count, 1)
 end
 
-def exec(mae,count)
-  return false if count == 5
+def exec(gree_id, gree_password, quest_type, max_count, count)
+  return false if count >= max_count
+
+
   begin
+    driver        = get_chrome_driver
+    mae           = Mae::Mae.new
+    extend_logging mae
     mae.log "#{count}th game start."
+    mae.setting(driver, gree_id, gree_password, 10000000, quest_type)
     mae.play
-  rescue
-    exec(mae,count+1)
+  rescue => ex
+    p ex
+    # 終了時にドライバーを閉じる
+    driver.close
+    # ドライバーが閉じるように一応30秒待つ
+    sleep 30
+    exec(gree_id, gree_password, quest_type, max_count, count + 1)
   end
 end
 
