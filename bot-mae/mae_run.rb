@@ -44,8 +44,14 @@ def exec(gree_id, gree_password, quest_type, max_count, count)
     mae.play
   rescue => ex
     p ex
-    # 終了時にドライバーを閉じる
-    driver.close
+
+    # driver.closeに失敗することがあるので、念のためbeginで囲っておく
+    begin
+      # 終了時にドライバーを閉じる
+      driver.close
+    rescue => e
+      p e
+    end
     # ドライバーが閉じるように一応30秒待つ
     sleep 30
     exec(gree_id, gree_password, quest_type, max_count, count + 1)
