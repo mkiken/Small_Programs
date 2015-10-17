@@ -1,0 +1,5 @@
+---
+ mobage_id: ''
+ mobage_password: ''
+ quest_type: 3 # 通常:1, 曜日:2, 征域:3
+ max_count: 10
