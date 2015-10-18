@@ -2,12 +2,12 @@
 
 module Mae_mobage_run
 
-  require './mae_run'
-  require './mae_mobage'
+  require_relative '../mae_run'
+  require_relative './mae_mobage'
   include Mae_run
 
-  def main_mobage
-    config          = YAML.load_file('./config_mobage.yml')
+  def main
+    config          = YAML::load_file(File.join(__dir__, 'config_mobage.yml'))
     mobage_id       = config['mobage_id']
     mobage_password = config['mobage_password']
     quest_type      = config['quest_type']
@@ -41,9 +41,6 @@ module Mae_mobage_run
     end
   end
 
-  module_function :main_mobage
+  module_function :main
 
 end
-
-Mae_mobage_run.main_mobage
-

@@ -1,6 +1,7 @@
 # coding: utf-8
 
 require 'date'
+require_relative '../mae'
 # ミリオンアーサー エクスタシス オートパイロット for Selenium + WebDriver
 module Mae_mobage
 

@@ -3,7 +3,7 @@
 module Mae_run
 
   require 'selenium-webdriver'
-  require './mae'
+  require_relative './mae'
   require 'yaml'
   include Mae
 
@@ -25,7 +25,7 @@ module Mae_run
   end
 
   def main
-    config        = YAML.load_file('./config.yml')
+    config        = YAML::load_file(File.join(__dir__, 'config.yml'))
     gree_id       = config['gree_id']
     gree_password = config['gree_password']
     quest_type    = config['quest_type']

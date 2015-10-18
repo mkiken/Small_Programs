@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+require_relative './mae_run'
+Mae_run.main

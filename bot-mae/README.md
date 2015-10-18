@@ -2,15 +2,24 @@
 
 
 ----
-## 使い方
+## 使い方[GREE版]
 1. Seleniumをruby gemでインストール
 `gem install selenium-webdriver`
 2. config.ymlの"YOUR_GREE_ID"と"YOUR_GREE_PASSWORD"を書き換え
 3. 起動
-`ruby mae_run.rb`
+`./exec`
 
+## 使い方[Mobage版]
+1. Seleniumをruby gemでインストール
+`gem install selenium-webdriver`
+2. mobage/config_mobage.ymlの"mobage_id"と"mobage_password"を書き換え
+3. 起動
+`./exec_mobage`
 ----
 ## CHANGELOG
+
+### v 0.1.8.1 (2015-10-19)
+* バグ対応
 
 ### v 0.1.8 (2015-10-18)
 * mobage版対応
