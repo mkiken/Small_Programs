@@ -317,13 +317,13 @@ module Mae
 
     def receive_not_received_raid_reward
       # 新着情報をみる
-      self.click_element('#js_news_popup_open')
+      self.click_element('a.js-news-popup-open.btn-information-inner')
       return false unless self.click_link("未受取レイド報酬があります")
     end
 
     def receive_gift
       # 新着情報をみる
-      self.click_element('#js_news_popup_open')
+      self.click_element('a.js-news-popup-open.btn-information-inner')
       sleep 1
       # return false unless self.click_element("//a[contains(@href, 'present')]", :xpath)
       return false unless self.click_element("//a[contains(text(), '件届いています')]", :xpath)
