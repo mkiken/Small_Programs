@@ -256,8 +256,10 @@ module Mae
             # result |= self.click_element('a.display-block > div.quest-hegemony-stage-area.margin-auto-t10')
             # result |= self.click_element("a[href*='quest_exec']")
             result |= self.click_element("a[href*='quest_exec'].display-block")
-          elsif @quest_type == QUEST_TYPE_DAILY or @quest_type == QUEST_TYPE_NORMAL
+          elsif @quest_type == QUEST_TYPE_DAILY
             result |= self.click_element('div.quest-stage-list.margin-auto-t10')
+          elsif @quest_type == QUEST_TYPE_NORMAL
+            result |= self.click_element('div.quest-stage-area.margin-auto-t10')
           end
           # ボスがいたら殴る
           if self.exist_element('a.btn-attack-0') || self.exist_element('a.btn-attack-20')
