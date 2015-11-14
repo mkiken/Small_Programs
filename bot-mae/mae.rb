@@ -313,6 +313,8 @@ module Mae
     def vs_raidboss_exec
       result = self.click_element('div.box-child > a.btn-attack-0')
       result |= self.click_element('div.box-child.padding-r10 > a.btn-attack-20')
+      # レイドイベント用
+      result |= self.click_element('div.box-child > a.btn-attack-coop-20')
       self.set_expire(RAID_EMPTY) unless result
       return result
     end
