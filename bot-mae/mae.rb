@@ -209,6 +209,11 @@ module Mae
       sleep 3
       self.go_mypage
 
+      # アセロラの材料
+      result |= self.get_acerola_material
+      sleep 1
+      self.go_mypage
+
       # レイド未受け取り報酬
       result |= self.receive_not_received_raid_reward
       sleep 1
@@ -336,6 +341,20 @@ module Mae
       sleep 2
       result
     end
+
+    # アセロラ材料
+    def get_acerola_material
+      # 新着情報をみる
+      self.click_element('a.js-news-popup-open.btn-information-inner')
+      sleep 1
+      # return false unless self.click_element("//a[contains(@href, 'present')]", :xpath)
+      return false unless self.click_element("//a[contains(text(), '個GETできます')]", :xpath)
+      sleep 1
+
+      self.flash_knock('div#reel', 5)
+      return true
+    end
+
 
     # 挨拶をする
     def hello_exec
