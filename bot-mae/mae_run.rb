@@ -41,7 +41,7 @@ module Mae_run
       mae           = Mae.new
       self.extend_logging mae
       mae.log "#{count}th game start."
-      mae.setting(driver, gree_id, gree_password, 10000000, quest_type)
+      mae.setting(driver, gree_id, gree_password, 10000000, quest_type, FALSE)
       mae.play
     rescue => ex
       p ex

@@ -23,7 +23,7 @@ module Mae_mobage_run
       mae           = Mae_mobage::Mae_mobage.new
       Mae_run.extend_logging mae
       mae.log "#{count}th game start."
-      mae.setting(driver, mobage_id, mobage_password, 10000000, quest_type)
+      mae.setting(driver, mobage_id, mobage_password, 10000000, quest_type, TRUE)
       mae.play
     rescue => ex
       p ex
@@ -37,7 +37,7 @@ module Mae_mobage_run
       end
       # ドライバーが閉じるように一応30秒待つ
       sleep 30
-      self.exec(mobage_id, mobage_password, quest_type, max_count, count + 1)
+      self.exec(mobage_id, mobage_password, quest_type, max_count, count + 1, TRUE)
     end
   end
 

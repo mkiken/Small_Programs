@@ -54,7 +54,7 @@ module Mae
       end
     end
 
-    def setting(driver, id, pass, max_count, quest_type)
+    def setting(driver, id, pass, max_count, quest_type, is_mobage)
       # Selenium WebDriver をセットする（必須）
       @driver = driver
       # SNS の ID をセット。
@@ -65,6 +65,8 @@ module Mae
       @main_loop_max = max_count
       # 征域優先か
       @quest_type = quest_type
+      # MOBAGE版か
+      @is_mobage = is_mobage
     end
 
     def move(url)
@@ -115,6 +117,24 @@ module Mae
       true
     end
 
+    # 動かない
+    def touch_element(target_css, selector=:css)
+      @driver.extend Selenium::WebDriver::DriverExtensions::HasTouchScreen
+
+      begin
+        target_btn = self.find_element(target_css, selector)
+        @driver.touch.single_tap(target_btn).perform
+      rescue Exception => ex
+        puts ex.message
+        self.log "touch fail. invalid target => " + target_css
+        return false
+      end
+      self.log "jump to => " + target_css
+      sleep 1
+      true
+    end
+
+
     def click_link(target_text)
       return self.click_element(target_text, :link_text)
     end
@@ -149,6 +169,7 @@ module Mae
           while current_url == @driver.current_url and cnt <= 10 do
             count.times{
               canvas.click
+              # self.touch_element(target)
               sleep 1
             }
             cnt += 1
@@ -344,6 +365,13 @@ module Mae
 
     # アセロラ材料
     def get_acerola_material
+      if @is_mobage
+        # TODO mobage版だと動かない
+        # self.flash_knock('div#gamecanvas', 5)
+        # self.flash_knock('div#qp_', 5)
+        # self.flash_knock('canvas#qo_33', 5)
+        return false
+      end
       # 新着情報をみる
       self.click_element('a.js-news-popup-open.btn-information-inner')
       sleep 1
@@ -352,6 +380,7 @@ module Mae
       sleep 1
 
       self.flash_knock('div#reel', 5)
+
       return true
     end
 
