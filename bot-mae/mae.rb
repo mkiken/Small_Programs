@@ -326,7 +326,8 @@ module Mae
           return false
         end
       end
-      return vs_raidboss_exec
+      # 救援のレイドイベント時は超弱攻撃優先
+      return vs_raidboss_exec(true)
     end
 
     def own_raidboss_exec
@@ -336,11 +337,29 @@ module Mae
       vs_raidboss_exec
     end
 
-    def vs_raidboss_exec
+    # レイドボスとの戦闘を行う
+    #
+    # @param [bool] is_weak_first 超弱攻撃優先で使う場合true
+    # @return [bool]
+    def vs_raidboss_exec(is_weak_first = false)
       result = self.click_element('div.box-child > a.btn-attack-0')
       result |= self.click_element('div.box-child.padding-r10 > a.btn-attack-20')
       # レイドイベント用
-      result |= self.click_element('div.box-child > a.btn-attack-coop-20')
+      if is_weak_first then
+        # 0BC
+        result |= self.click_element('div.box-child > a.btn-attack-coop-weak-0')
+        result |= self.click_element('div.box-child > a.btn-attack-coop-0')
+        # 20BC
+        result |= self.click_element('div.box-child > a.btn-attack-coop-weak-20')
+        result |= self.click_element('div.box-child > a.btn-attack-coop-20')
+      else
+        # 0BC
+        result |= self.click_element('div.box-child > a.btn-attack-coop-0')
+        result |= self.click_element('div.box-child > a.btn-attack-coop-weak-0')
+        # 20BC
+        result |= self.click_element('div.box-child > a.btn-attack-coop-20')
+        result |= self.click_element('div.box-child > a.btn-attack-coop-weak-20')
+      end
       self.set_expire(RAID_EMPTY) unless result
       return result
     end
