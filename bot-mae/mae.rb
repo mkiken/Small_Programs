@@ -139,6 +139,18 @@ module Mae
       return self.click_element(target_text, :link_text)
     end
 
+    # クリックできないリンクを属性から無理やり飛ぶ
+    def jump_to_unclickable_link(target_element, target_attribute = 'href')
+      return false unless self.exist_element(target_element)
+      target = self.find_element(target_element)
+      if target.nil?
+        self.log "not found => [#{target_element}], #{__method__}"
+        return false
+      end
+      self.move target.attribute(target_attribute)
+      return true
+    end
+
     def set_expire(key)
       @exec_timestamp[key] = Time.now
       self.log "set_expire, key=#{@const_to_str[key]}, execute_time=#{@exec_timestamp[key]}"
@@ -196,16 +208,16 @@ module Mae
 
 
     # メインルーチン
-    def play
+    def play(sleep_time=10)
       self.login_sns # ゲームにログインしてマイページへ
       limiter = 0
       # ホーム画面で状況を確認して次の手を考えて行動する
       while limiter < @main_loop_max do
-        sleep 2
+        sleep 1
         self.go_mypage
         self.log sprintf("%d's action start.", limiter)
         self.do_action limiter # 現在のページ情報から次の１手を決めて行動する
-        sleep 10
+        sleep sleep_time
         limiter += 1
       end
     end
@@ -292,8 +304,9 @@ module Mae
             self.vs_raidboss_exec
           end
           # 体力が残っていなかったら諦める
-          if self.exist_element("//img[contains(@src, 'comeback/button_comeback.png')]", :xpath)
-            self.set_expire(QUEST_EMPTY)
+          # if self.exist_element("//img[contains(@src, 'comeback/button_comeback.png')]", :xpath)
+          if self.exist_element("//form[contains(@action, 'quest/recovery_ap_exec')]", :xpath)
+            self.exec_quest_empty
             return false
           end
             # ブラバ
@@ -301,6 +314,62 @@ module Mae
         }
       end
       self.remove_expire(RAID_EMPTY) if result
+      result
+    end
+
+    # APが空になった時の処理
+    #
+    # return [bool]
+    def exec_quest_empty
+      self.set_expire(QUEST_EMPTY)
+      true
+    end
+
+    # AP切れ画面からAP回復薬を使う
+    #
+    # return [bool] 使用したらtrue
+    def recovery_ap_exec
+      result = false
+      # AP回復薬が使えるか？
+      result |= self.click_element("input[value*='3個使う']")
+      result |= self.click_element("input[value*='2個使う']") unless result
+      result |= self.click_element("input[value*='使う']") unless result
+
+      result
+    end
+
+    # AP回復薬を購入する処理
+    #
+    # return [bool] 購入したらtrue
+    def buy_ap_portion
+      result = false
+
+      # メニューを開く
+      # result |= self.click_element(".js-global-menu-open-btn")
+      # return false unless result
+
+      # FIXME
+      # なぜかメニューを開けないので、アビリティから頑張ってショップにいく
+      result |= self.click_element("div.btn-ability")
+      return false unless result
+
+      result |= self.click_link("レアメダルショップへ")
+      return false unless result
+
+      result |= self.click_link("ベル")
+      return false unless result
+
+      # プルダウンを変更
+      select_element = self.find_element("form[action*='shop/buy/money/1'] > div.box-child.width-30.margin-r5 > select")
+      return false unless select_element
+
+      select = Selenium::WebDriver::Support::Select.new(select_element)
+      select.select_by(:value, '10')       # 10個買う
+
+      result |= self.click_element("form[action*='shop/buy/money/1'] > div.box-child.form-wrap-grad-gold.width-50 > input")
+      return false unless result
+      result |= self.click_element("input[value*='交換する']")
+      sleep 1
       result
     end
 
@@ -343,23 +412,27 @@ module Mae
     # @return [bool]
     def vs_raidboss_exec(is_weak_first = false)
       result = self.click_element('div.box-child > a.btn-attack-0')
-      result |= self.click_element('div.box-child.padding-r10 > a.btn-attack-20')
+      result |= self.click_element('div.box-child.padding-r10 > a.btn-attack-20') unless result
+
       # レイドイベント用
-      if is_weak_first then
-        # 0BC
-        result |= self.click_element('div.box-child > a.btn-attack-coop-weak-0')
-        result |= self.click_element('div.box-child > a.btn-attack-coop-0')
-        # 20BC
-        result |= self.click_element('div.box-child > a.btn-attack-coop-weak-20')
-        result |= self.click_element('div.box-child > a.btn-attack-coop-20')
-      else
-        # 0BC
-        result |= self.click_element('div.box-child > a.btn-attack-coop-0')
-        result |= self.click_element('div.box-child > a.btn-attack-coop-weak-0')
-        # 20BC
-        result |= self.click_element('div.box-child > a.btn-attack-coop-20')
-        result |= self.click_element('div.box-child > a.btn-attack-coop-weak-20')
+      unless result
+        if is_weak_first then
+          # 0BC
+          result |= self.click_element('div.box-child > a.btn-attack-coop-weak-0') unless result
+          result |= self.click_element('div.box-child > a.btn-attack-coop-0') unless result
+          # 20BC
+          result |= self.click_element('div.box-child > a.btn-attack-coop-weak-20') unless result
+          result |= self.click_element('div.box-child > a.btn-attack-coop-20') unless result
+        else
+          # 0BC
+          result |= self.click_element('div.box-child > a.btn-attack-coop-0')
+          result |= self.click_element('div.box-child > a.btn-attack-coop-weak-0') unless result
+          # 20BC
+          result |= self.click_element('div.box-child > a.btn-attack-coop-20') unless result
+          result |= self.click_element('div.box-child > a.btn-attack-coop-weak-20') unless result
+        end
       end
+
       self.set_expire(RAID_EMPTY) unless result
       return result
     end
