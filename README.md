@@ -20,9 +20,13 @@ Small_Programs
 ### cli_dir_diff [Shell Script]
  Command line tool for Directory diff.
 
- install: `ln -s "$(pwd)/cli_dir_diff.sh" /usr/local/bin/cli_dir_diff` (Mac)
- usage: `cli_dir_diff DIR1 DIR2`
- environment variable:
-   `DIR_DIFF_COMMAND`  - diff command for each file(default: `diff`)
-   `DIR_DIFF_PAGER_COMMAND`  - pager command for each file(default: `less`)
+ #### install:
+ `ln -s "$(pwd)/cli_dir_diff.sh" /usr/local/bin/cli_dir_diff` (Mac)
+
+ #### usage:
+ `cli_dir_diff DIR1 DIR2`
+
+ #### environment variable:
+  - `DIR_DIFF_COMMAND`  - diff command for each file(default: `diff`)
+  - `DIR_DIFF_PAGER_COMMAND`  - pager command for each file(default: `less`)
 ***
