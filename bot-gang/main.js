@@ -1,33 +1,52 @@
-var isRunning = false;
+const TOP_URL = "http://gang-trump.gree-pf.net/";
+
+const METHODS = {
+    jump_top: function () {
+      jump(TOP_URL);
+    },
+    go_mypage: function () {
+      click_element('div.mypage_btn');
+    },
+};
 
 //メッセージリスナー
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  console.log("message received. : " + JSON.stringify(request));
-  if (request.is_enabled) {
-    start();
-  } else {
-    stop();
-  }
+  info("message received. -> " + JSON.stringify(request));
+  METHODS[request.method_name]();
   var response = {msg: "from main"};
   sendResponse(response);
 
   return true;
 });
 
-function stop() {
-  if (!isRunning) {
-    return;
-  }
-
-  console.log("stop!");
-  isRunning = false;
+function jump(url) {
+  info("url -> " + url);
+  window.location.href = url;
 }
 
-function start() {
-  if (isRunning) {
-    return;
-  }
+function info(msg) {
+  console.log(createLogMessage(msg));
+}
 
-  console.log("start!");
-  isRunning = true;
+function warn(msg) {
+  console.warn(createLogMessage(msg));
+}
+
+function createLogMessage(msg) {
+  return (new Date()).toString() + ": " + msg;
+}
+
+function click_element(selector) {
+   let element = get_element(selector);
+   if (element) {
+     element.click();
+   }
+}
+
+function get_element(selector) {
+  let result = document.querySelector(selector);
+  if (!result) {
+    warn(selector + " element not found.");
+  }
+  return result;
 }

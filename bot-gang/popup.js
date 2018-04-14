@@ -8,14 +8,16 @@ function onClickCheckBox() {
   let isChecked = this.checked;
   chrome.storage.sync.set({is_enabled: isChecked}, function() {
     console.log("is_checked is " + isChecked);
-    // 現在開いているタブにメッセージ送信
+    // 現在開いているタブIDを送る
     chrome.tabs.query(
         { currentWindow: true, active: true },
         function (tabArray) {
           let currentTab = tabArray[0];
-          chrome.tabs.sendMessage(currentTab.id, {
-            is_enabled: isChecked
-          }, function(response) {
+          chrome.runtime.sendMessage({
+            is_enabled: isChecked,
+            tab_id: currentTab.id
+          },
+          function(response) {
             console.log(response);
           });
         }
