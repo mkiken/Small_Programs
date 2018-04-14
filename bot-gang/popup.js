@@ -1,16 +1,26 @@
-let changeColor = document.getElementById('changeColor');
+const checkBoxIsEnabled = document.getElementById('isEnabled');
 
-chrome.storage.sync.get('color', function(data) {
-  changeColor.style.backgroundColor = data.color;
-  changeColor.setAttribute('value', data.color);
+chrome.storage.sync.get('is_enabled', function(data) {
+  checkBoxIsEnabled.checked = data.is_enabled ? true : false;
 });
 
-changeColor.onclick = function(element) {
-  alert(document.getElementById('gree-app-container'));
+function onClickCheckBox() {
+  let isChecked = this.checked;
+  chrome.storage.sync.set({is_enabled: isChecked}, function() {
+    console.log("is_checked is " + isChecked);
+    // 現在開いているタブにメッセージ送信
+    chrome.tabs.query(
+        { currentWindow: true, active: true },
+        function (tabArray) {
+          let currentTab = tabArray[0];
+          chrome.tabs.sendMessage(currentTab.id, {
+            is_enabled: isChecked
+          }, function(response) {
+            console.log(response);
+          });
+        }
+    );
+  });
+}
 
-  let color = element.target.value;
-    chrome.tabs.executeScript(
-        tabs[0].id,
-        {code: 'document.body.style.backgroundColor = "' + color + '";'});
-
-};
+checkBoxIsEnabled.addEventListener('click', onClickCheckBox)
