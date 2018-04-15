@@ -53,6 +53,45 @@ const SEQUENCES = [
     wait: 3,
   },
   // ↑ 自分のレイド ↑
+  // ↓ クエスト ↓
+  {
+    description: 'go to top.',
+    method_name: 'jump_top',
+    wait: 2,
+  },
+  {
+    description: 'move mypage.',
+    method_name: 'go_mypage',
+    wait: 2,
+  },
+  {
+    description: 'go quest top.',
+    method_name: 'go_quest',
+    wait: 2,
+  },
+  // 覇圏タブに行ってみる
+  {
+    description: 'go haken tab.',
+    method_name: 'go_quest_haken_tab',
+    wait: 2,
+  },
+  {
+    description: 'quest exec.',
+    method_name: 'quest_exec',
+    wait: 2,
+  },
+  // 覇圏が駄目な時のため期間限定タブに行ってみる
+  {
+    description: 'go gentei tab.',
+    method_name: 'go_quest_gentei_tab',
+    wait: 2,
+  },
+  {
+    description: 'quest exec.',
+    method_name: 'quest_exec',
+    wait: 2,
+  },
+  // ↑ クエスト ↑
   // ↓ 10000絆Pガチャ ↓
   {
     description: 'go to top.',

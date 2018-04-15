@@ -11,7 +11,6 @@ const METHODS = {
         response_callback,
         click_element.bind(this, 'div.mypage_btn > a', response_callback)
       )
-
     },
     go_gacha: function (response_callback) {
       click_element('div.ico-gacha > a', response_callback);
@@ -36,6 +35,18 @@ const METHODS = {
     },
     request_raid_help: function (response_callback) {
       click_element('div#raid div.o-mt-10.o-talign-c > a', response_callback);
+    },
+    go_quest: function (response_callback) {
+      click_element('div.btn-quest > a', response_callback);
+    },
+    go_quest_haken_tab: function (response_callback) {
+      click_element('div#quest > ul > li:nth-child(3) > a', response_callback);
+    },
+    go_quest_gentei_tab: function (response_callback) {
+      click_element('div#quest > ul > li:nth-child(2) > a', response_callback);
+    },
+    quest_exec: function (response_callback) {
+      click_element('div.quest_list > a[href*=quest_exec]', response_callback);
     },
 };
 
