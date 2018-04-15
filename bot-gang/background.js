@@ -130,7 +130,12 @@ function start(tab_id) {
 }
 
 function exec_sequence(index, tab_id) {
-  if (index >= SEQUENCES.length || !isRunning) {
+  if (!isRunning) {
+    return;
+  }
+  if (index >= SEQUENCES.length) {
+    // 全部終わったらはじめに戻る
+    exec_sequence(0, tab_id);
     return;
   }
 
@@ -141,8 +146,10 @@ function exec_sequence(index, tab_id) {
     chrome.tabs.sendMessage(tab_id, {
       method_name: sequence.method_name
     }, function(response) {
+      // main.jsから処理完了通知がきたら次の処理を送る
+      info("response receive. " + JSON.stringify(response));
+      setTimeout(exec_sequence.bind(this, index + 1, tab_id), sequence['wait'] * 1000);
     });
-  setTimeout(exec_sequence.bind(this, index + 1, tab_id), sequence['wait'] * 1000);
 
 }
 

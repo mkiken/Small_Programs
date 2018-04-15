@@ -1,46 +1,52 @@
 const TOP_URL = "http://gang-trump.gree-pf.net/";
 
 const METHODS = {
-    jump_top: function () {
+    jump_top: function (response_callback) {
       jump(TOP_URL);
+      response_callback();
     },
-    go_mypage: function () {
+    go_mypage: function (response_callback) {
       click_element('div.mypage_btn > a');
+      response_callback();
     },
-    go_gacha: function () {
+    go_gacha: function (response_callback) {
       click_element('div.ico-gacha > a');
+      response_callback();
     },
-    go_gacha_normal_tab: function () {
+    go_gacha_normal_tab: function (response_callback) {
       click_element('div#gacha > ul > li:nth-child(3) > a');
+      response_callback();
     },
-    draw_10000_kizuna_gacha: function () {
+    draw_10000_kizuna_gacha: function (response_callback) {
       click_element('a.btn-gacha');
+      response_callback();
     },
-    go_raid_list: function () {
-      click_element('div.ico-raidWrap a');
-      // click_element('div.ico-resque ico-new a');
-      // TODO 精査が必要
+    go_raid_list: function (response_callback) {
+      click_element('div.ico-resque.ico-new > a');
+      response_callback();
     },
-    go_raid_help: function () {
+    go_raid_help: function (response_callback) {
       click_element('div.o-float-c > a');
+      response_callback();
     },
-    attack_raid: function () {
+    attack_raid: function (response_callback) {
       click_element('div#raid div.o-talign-c.o-mt-10 > a');
+      response_callback();
     },
-    go_own_raid: function () {
+    go_own_raid: function (response_callback) {
       click_element('div.ico-appear > a');
+      response_callback();
     },
-    request_raid_help: function () {
+    request_raid_help: function (response_callback) {
       click_element('div#raid div.o-mt-10.o-talign-c > a');
+      response_callback();
     },
 };
 
 //メッセージリスナー
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   info("message received. -> " + JSON.stringify(request));
-  METHODS[request.method_name]();
-  var response = {msg: "from main"};
-  sendResponse(response);
+  METHODS[request.method_name](sendResponse);
 
   return true;
 });
