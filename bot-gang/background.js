@@ -1,14 +1,85 @@
 const SEQUENCES = [
+  // ↓ レイド救援 ↓
   {
     description: 'go to top.',
     method_name: 'jump_top',
-    wait: 3,
+    wait: 2,
   },
   {
     description: 'move mypage.',
     method_name: 'go_mypage',
+    wait: 2,
+  },
+  {
+    description: 'go raid list.',
+    method_name: 'go_raid_list',
+    wait: 2,
+  },
+  {
+    description: 'go raid help.',
+    method_name: 'go_raid_help',
+    wait: 2,
+  },
+  {
+    description: 'attack to raid.',
+    method_name: 'attack_raid',
     wait: 3,
   },
+  // ↑ レイド救援 ↑
+  // ↓ 自分のレイド ↓
+  {
+    description: 'go to top.',
+    method_name: 'jump_top',
+    wait: 2,
+  },
+  {
+    description: 'move mypage.',
+    method_name: 'go_mypage',
+    wait: 2,
+  },
+  {
+    description: 'go own raid',
+    method_name: 'go_own_raid',
+    wait: 2,
+  },
+  {
+    description: 'attack to raid.',
+    method_name: 'attack_raid',
+    wait: 3,
+  },
+  {
+    description: 'request raid help',
+    method_name: 'request_raid_help',
+    wait: 3,
+  },
+  // ↑ 自分のレイド ↑
+  // ↓ 10000絆Pガチャ ↓
+  {
+    description: 'go to top.',
+    method_name: 'jump_top',
+    wait: 2,
+  },
+  {
+    description: 'move mypage.',
+    method_name: 'go_mypage',
+    wait: 2,
+  },
+  {
+    description: 'go gacha.',
+    method_name: 'go_gacha',
+    wait: 3,
+  },
+  {
+    description: 'go gacha notmal tab.',
+    method_name: 'go_gacha_normal_tab',
+    wait: 3,
+  },
+  {
+    description: 'draw 10000 kizuna p gacha.',
+    method_name: 'draw_10000_kizuna_gacha',
+    wait: 3,
+  },
+  // ↑ 10000絆Pガチャ ↑
 ];
 
 var isRunning = false;
@@ -59,7 +130,7 @@ function start(tab_id) {
 }
 
 function exec_sequence(index, tab_id) {
-  if (index >= SEQUENCES.length) {
+  if (index >= SEQUENCES.length || !isRunning) {
     return;
   }
 
