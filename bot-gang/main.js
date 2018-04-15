@@ -22,13 +22,16 @@ const METHODS = {
       click_element('a.btn-gacha', response_callback);
     },
     go_raid_list: function (response_callback) {
-      click_element('div.ico-resque.ico-new > a', response_callback);
+      click_element('div.ico-resque > a', response_callback);
     },
     go_raid_help: function (response_callback) {
       click_element('div#raid div.o-float-c > a', response_callback);
     },
-    attack_raid: function (response_callback) {
+    attack_raid_free: function (response_callback) {
       click_element('div#raid div.o-talign-c.o-mt-10 > a', response_callback);
+    },
+    attack_raid_20: function (response_callback) {
+      click_element('div#raid div.o-col-2.o-mat-10.o-w-90.o-talign-c a', response_callback);
     },
     go_own_raid: function (response_callback) {
       click_element('div.ico-appear > a', response_callback);

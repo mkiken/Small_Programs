@@ -22,7 +22,13 @@ const SEQUENCES = [
   },
   {
     description: 'attack to raid.',
-    method_name: 'attack_raid',
+    method_name: 'attack_raid_free',
+    wait: 3,
+  },
+  // 自分で殴る
+  {
+    description: 'attack to raid free.',
+    method_name: 'attack_raid_20',
     wait: 3,
   },
   // ↑ レイド救援 ↑
@@ -43,13 +49,20 @@ const SEQUENCES = [
     wait: 2,
   },
   {
-    description: 'attack to raid.',
-    method_name: 'attack_raid',
+    description: 'attack to raid free.',
+    method_name: 'attack_raid_free',
     wait: 3,
   },
+  // 無料で殴れなかったら救援
   {
     description: 'request raid help',
     method_name: 'request_raid_help',
+    wait: 3,
+  },
+  // 救援できなかったら自分で殴る
+  {
+    description: 'attack to raid free.',
+    method_name: 'attack_raid_20',
     wait: 3,
   },
   // ↑ 自分のレイド ↑
