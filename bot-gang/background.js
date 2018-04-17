@@ -104,6 +104,12 @@ const SEQUENCES = [
     method_name: 'quest_exec',
     wait: 2,
   },
+  // ボスを殴ってみる
+  {
+    description: 'attack quest boss.',
+    method_name: 'attack_quest_boss',
+    wait: 2,
+  },
   // ↑ クエスト ↑
   // ↓ 10000絆Pガチャ ↓
   {

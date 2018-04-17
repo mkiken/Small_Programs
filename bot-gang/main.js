@@ -43,14 +43,17 @@ const METHODS = {
       click_element('div.btn-quest > a', response_callback);
     },
     go_quest_haken_tab: function (response_callback) {
-      click_element('div#quest > ul > li:nth-child(3) > a', response_callback);
+      click_element('div#quest > ul > li:nth-child(3) > a[href*="quest/index/2"]', response_callback);
     },
     go_quest_gentei_tab: function (response_callback) {
-      click_element('div#quest > ul > li:nth-child(2) > a', response_callback);
+      click_element('div#quest > ul > li:nth-child(2) > a[href*="quest/index/1"]', response_callback);
     },
     quest_exec: function (response_callback) {
       click_element('div.quest_list > a[href*=quest_exec]', response_callback);
     },
+    attack_quest_boss: function (response_callback) {
+      click_element('div#quest div.child.o-talign-c > a[href*="quest/boss_battle_flash"]', response_callback);
+    }
 };
 
 //メッセージリスナー
