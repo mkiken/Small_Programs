@@ -14,16 +14,25 @@ const SEQUENCES = [
     description: 'go raid list.',
     method_name: 'go_raid_list',
     wait: 2,
+    fail: {
+      skip_steps: 4
+    }
   },
   {
     description: 'go raid help.',
     method_name: 'go_raid_help',
     wait: 2,
+    fail: {
+      skip_steps: 3
+    }
   },
   {
     description: 'attack to raid.',
     method_name: 'attack_raid_free',
     wait: 3,
+    success: {
+      skip_step: 1,
+    }
   },
   // 自分で殴る
   {
@@ -47,17 +56,26 @@ const SEQUENCES = [
     description: 'go own raid',
     method_name: 'go_own_raid',
     wait: 2,
+    fail: {
+      skip_steps: 3
+    }
   },
   {
     description: 'attack to raid free.',
     method_name: 'attack_raid_free',
     wait: 3,
+    success: {
+      skip_steps: 2
+    }
   },
   // 無料で殴れなかったら救援
   {
     description: 'request raid help',
     method_name: 'request_raid_help',
     wait: 3,
+    success: {
+      skip_steps: 1
+    }
   },
   // 救援できなかったら自分で殴る
   {
@@ -81,33 +99,57 @@ const SEQUENCES = [
     description: 'go quest top.',
     method_name: 'go_quest',
     wait: 2,
+    fail: {
+      reset_step: true,
+    }
   },
   // 覇圏タブに行ってみる
   {
     description: 'go haken tab.',
     method_name: 'go_quest_haken_tab',
     wait: 2,
+    fail: {
+      skip_steps: 5
+    }
   },
   {
     description: 'quest exec.',
     method_name: 'quest_exec',
     wait: 2,
+    fail: {
+      skip_steps: 4
+    }
   },
   // 覇圏が駄目な時のため期間限定タブに行ってみる
   {
     description: 'go gentei tab.',
     method_name: 'go_quest_gentei_tab',
     wait: 2,
+    fail: {
+      skip_steps: 3
+    }
   },
   {
     description: 'quest exec.',
     method_name: 'quest_exec',
     wait: 2,
+    success: {
+      skip_steps: 2
+    }
   },
   // ボスを殴ってみる
   {
     description: 'attack quest boss.',
     method_name: 'attack_quest_boss',
+    wait: 2,
+    success: {
+      skip_steps: 1
+    }
+  },
+  // クエストのルーレット
+  {
+    description: 'quest item challenge',
+    method_name: 'quest_item_challenge',
     wait: 2,
   },
   // ↑ クエスト ↑
@@ -206,7 +248,38 @@ function exec_sequence(index, tab_id) {
     }, function(response) {
       // main.jsから処理完了通知がきたら次の処理を送る
       info("response receive. " + JSON.stringify(response));
-      setTimeout(exec_sequence.bind(this, index + 1, tab_id), sequence['wait'] * 1000);
+      let nextIndex = index + 1;
+      let nextAction = null;
+      if (
+        typeof result !== 'undefined'
+        && typeof response.result !== 'undefined'
+        && response.result == false
+      ) {
+        if (typeof sequence.fail != 'undefined') {
+          nextAction = sequence.fail;
+        }
+      }
+      else {
+        if (typeof sequence.success != 'undefined') {
+          nextAction = sequence.success;
+        }
+      }
+
+      if (nextAction) {
+        // 処理をスキップ
+        if (typeof nextAction.skip_steps != 'undefined') {
+          nextIndex += nextAction.skip_steps;
+        }
+        // 処理をはじめに戻す
+        if (
+          typeof nextAction.reset_step != 'undefined'
+          && nextAction.reset_step
+        ) {
+          nextIndex = 0;
+        }
+      }
+
+      setTimeout(exec_sequence.bind(this, nextIndex, tab_id), sequence['wait'] * 1000);
     });
 
 }

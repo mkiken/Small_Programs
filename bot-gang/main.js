@@ -52,7 +52,11 @@ const METHODS = {
       click_element('div.quest_list > a[href*=quest_exec]', response_callback);
     },
     attack_quest_boss: function (response_callback) {
-      click_element('div#quest div.child.o-talign-c > a[href*="quest/boss_battle_flash"]', response_callback);
+      click_element('div#quest a[href*="quest/boss_battle_flash"]', response_callback);
+    },
+    quest_item_challenge: function (response_callback) {
+      // TODO 動かないので直す
+      click_element('div#reel > canvas', response_callback);
     }
 };
 
@@ -90,7 +94,9 @@ function click_element(selector, success_callback, fail_callback = null) {
    }
 
    if (fail_callback) {
-     fail_callback();
+     fail_callback({
+       result: false
+     });
    } else {
      success_callback();
    }
