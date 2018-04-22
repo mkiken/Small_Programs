@@ -14,6 +14,7 @@ function onClickCheckBox() {
         function (tabArray) {
           let currentTab = tabArray[0];
           chrome.runtime.sendMessage({
+            method_name: 'setEnabled',
             is_enabled: isChecked,
             tab_id: currentTab.id
           },

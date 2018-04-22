@@ -233,6 +233,20 @@ const SEQUENCES = [
   },
 ];
 
+const OPTION_METHODS = {
+  setEnabled: function (request, sender, sendResponse) {
+    if (request.is_enabled) {
+      start(request.tab_id);
+    } else {
+      stop();
+    }
+    let response = {msg: "from main"};
+    sendResponse(response);
+
+    return true;
+  }
+};
+
 var isRunning = false;
 
 chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
@@ -248,15 +262,8 @@ chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
 //メッセージリスナー
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   info("background.js message received. -> " + JSON.stringify(request));
-  if (request.is_enabled) {
-    start(request.tab_id);
-  } else {
-    stop();
-  }
-  var response = {msg: "from main"};
-  sendResponse(response);
 
-  return true;
+  return OPTION_METHODS[request.method_name](request, sender, sendResponse);
 });
 
 
