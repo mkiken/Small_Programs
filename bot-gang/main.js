@@ -1,91 +1,91 @@
 const TOP_URL = "http://gang-trump.gree-pf.net/";
 
 const METHODS = {
-    jump_top: function (response_callback) {
-      response_callback();
+    jumpTop: function (responseCallback) {
+      responseCallback();
       jump(TOP_URL);
     },
-    go_mypage: function (response_callback) {
-      click_element(
+    goMypage: function (responseCallback) {
+      clickElement(
         'li.btn-mypage > a',
-        response_callback,
-        click_element.bind(this, 'div.mypage_btn > a', response_callback)
+        responseCallback,
+        clickElement.bind(this, 'div.mypage_btn > a', responseCallback)
       )
     },
-    go_gacha: function (response_callback) {
-      click_element('div.ico-gacha > a', response_callback);
+    goGacha: function (responseCallback) {
+      clickElement('div.ico-gacha > a', responseCallback);
     },
-    go_gacha_normal_tab: function (response_callback) {
-      click_element('div#gacha > ul > li:nth-child(3) > a', response_callback);
+    goGachaNormalTab: function (responseCallback) {
+      clickElement('div#gacha > ul > li:nth-child(3) > a', responseCallback);
     },
-    draw_10000_kizuna_gacha: function (response_callback) {
-      click_element('a.btn-gacha', response_callback);
+    draw10000KizunaGacha: function (responseCallback) {
+      clickElement('a.btn-gacha', responseCallback);
     },
-    go_raid_list: function (response_callback) {
-      click_element('div.ico-resque > a', response_callback);
+    goRaidList: function (responseCallback) {
+      clickElement('div.ico-resque > a', responseCallback);
     },
-    go_raid_help: function (response_callback) {
-      click_element('div#raid div.o-float-c > a', response_callback);
+    goRaidHelp: function (responseCallback) {
+      clickElement('div#raid div.o-float-c > a', responseCallback);
     },
-    attack_raid_free: function (response_callback) {
-      click_element('div#raid div.o-talign-c.o-mt-10 > a', response_callback);
+    attackRaidFree: function (responseCallback) {
+      clickElement('div#raid div.o-talign-c.o-mt-10 > a', responseCallback);
     },
-    attack_raid_20: function (response_callback) {
-      click_element('div#raid div.o-col-2.o-mat-10.o-w-90.o-talign-c a', response_callback);
+    attackRaid20: function (responseCallback) {
+      clickElement('div#raid div.o-col-2.o-mat-10.o-w-90.o-talign-c a', responseCallback);
     },
-    go_own_raid: function (response_callback) {
-      click_element('div.ico-appear > a', response_callback);
+    goOwnRaid: function (responseCallback) {
+      clickElement('div.ico-appear > a', responseCallback);
     },
-    request_raid_help: function (response_callback) {
-      click_element('div#raid div.o-mt-10.o-talign-c > a', response_callback);
+    requestRaidHelp: function (responseCallback) {
+      clickElement('div#raid div.o-mt-10.o-talign-c > a', responseCallback);
     },
-    go_quest: function (response_callback) {
-      click_element('div.btn-quest > a', response_callback);
+    goQuest: function (responseCallback) {
+      clickElement('div.btn-quest > a', responseCallback);
     },
-    go_quest_haken_tab: function (response_callback) {
-      click_element('div#quest > ul > li:nth-child(3) > a[href*="quest/index/2"]', response_callback);
+    goQuestHakenTab: function (responseCallback) {
+      clickElement('div#quest > ul > li:nth-child(3) > a[href*="quest/index/2"]', responseCallback);
     },
-    go_quest_gentei_tab: function (response_callback) {
-      click_element('div#quest > ul > li:nth-child(2) > a[href*="quest/index/1"]', response_callback);
+    goQuestGenteiTab: function (responseCallback) {
+      clickElement('div#quest > ul > li:nth-child(2) > a[href*="quest/index/1"]', responseCallback);
     },
-    quest_exec: function (response_callback) {
-      click_element('div.quest_list > a[href*=quest_exec]', response_callback);
+    questExec: function (responseCallback) {
+      clickElement('div.quest_list > a[href*=quest_exec]', responseCallback);
     },
-    attack_quest_boss: function (response_callback) {
-      click_element('div#quest a[href*="quest/boss_battle_flash"]', response_callback);
+    attackQuestBoss: function (responseCallback) {
+      clickElement('div#quest a[href*="quest/boss_battle_flash"]', responseCallback);
     },
-    quest_item_challenge: function (response_callback) {
+    questItemChallenge: function (responseCallback) {
       // TODO 動かないので直す
-      click_element('div#reel > canvas', response_callback);
+      clickElement('div#reel > canvas', responseCallback);
     },
-    go_lottery: function (response_callback) {
-      click_news('login_bonus/lottery', response_callback);
+    goLottery: function (responseCallback) {
+      clickNews('login_bonus/lottery', responseCallback);
     },
-    draw_lottery: function (response_callback) {
-      click_element('div#coin_kuji a[href*="login_bonus/lottery_exec"]', response_callback);
+    drawLottery: function (responseCallback) {
+      clickElement('div#coin_kuji a[href*="login_bonus/lottery_exec"]', responseCallback);
     },
-    get_raid_reward: function (response_callback) {
-      click_news('raid/get_reward_all', response_callback);
+    getRaidReward: function (responseCallback) {
+      clickNews('raid/get_reward_all', responseCallback);
     },
-    go_present: function (response_callback) {
-      click_news('present', response_callback);
+    goPresent: function (responseCallback) {
+      clickNews('present', responseCallback);
     },
-    get_present_all: function (response_callback) {
-      click_element('div#gift a[href*="present/receive_presents"]', response_callback);
+    getPresentAll: function (responseCallback) {
+      clickElement('div#gift a[href*="present/receive_presents"]', responseCallback);
     },
 };
 
 //メッセージリスナー
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   info("message received. -> " + JSON.stringify(request));
-  METHODS[request.method_name](sendResponse);
+  METHODS[request.methodName](sendResponse);
 
   return true;
 });
 
-function click_news(href, callback)
+function clickNews(href, callback)
 {
-  click_element(`div.js-popup ul.linkList li > a[href*="${href}"]`, callback);
+  clickElement(`div.js-popup ul.linkList li > a[href*="${href}"]`, callback);
 }
 
 function jump(url) {
@@ -105,26 +105,26 @@ function createLogMessage(msg) {
   return (new Date()).toString() + ": " + msg;
 }
 
-function click_element(selector, success_callback, fail_callback = null) {
-   let element = get_element(selector);
+function clickElement(selector, successCallback, failCallback = null) {
+   let element = getElement(selector);
    if (element) {
-     success_callback();
+     successCallback();
      element.click();
      return;
    }
 
-   if (fail_callback) {
-     fail_callback({
+   if (failCallback) {
+     failCallback({
        result: false
      });
    } else {
-     success_callback({
+     successCallback({
        result: false
      });
    }
 }
 
-function get_element(selector) {
+function getElement(selector) {
   let result = document.querySelector(selector);
   if (!result) {
     warn(selector + " element not found.");

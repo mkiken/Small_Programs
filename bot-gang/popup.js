@@ -2,7 +2,7 @@ const OPTION_SETTINGS = {
   // 有効か
   isEnabled: {
     domId: 'isEnabled',
-    storageKey: 'is_enabled',
+    storageKey: 'isEnabled',
     dom: null,
     setDom: function () {
       this.dom = document.getElementById(this.domId);
@@ -15,7 +15,7 @@ const OPTION_SETTINGS = {
     },
     onClick: function () {
       let isChecked = this.checked;
-      chrome.storage.sync.set({is_enabled: isChecked}, function() {
+      chrome.storage.sync.set({isEnabled: isChecked}, function() {
         console.log("is_checked is " + isChecked);
         // 現在開いているタブIDを送る
         chrome.tabs.query(
@@ -23,9 +23,9 @@ const OPTION_SETTINGS = {
           function (tabArray) {
             let currentTab = tabArray[0];
             chrome.runtime.sendMessage({
-              method_name: 'setEnabled',
-              is_enabled: isChecked,
-              tab_id: currentTab.id
+              methodName: 'setEnabled',
+              isEnabled: isChecked,
+              tabId: currentTab.id
             },
             function(response) {
               console.log(response);
@@ -41,7 +41,7 @@ const OPTION_SETTINGS = {
   // レイドガチャを引くか
   raidGacha: {
     domId: 'raidGacha',
-    storageKey: 'raid_gacha',
+    storageKey: 'raidGacha',
     dom: null,
     setDom: function () {
       this.dom = document.getElementById(this.domId);
@@ -54,11 +54,11 @@ const OPTION_SETTINGS = {
     },
     onClick: function () {
       let isChecked = this.checked;
-      chrome.storage.sync.set({is_enabled: isChecked}, function() {
+      chrome.storage.sync.set({isEnabled: isChecked}, function() {
         console.log("is_checked is " + isChecked);
         chrome.runtime.sendMessage({
-          method_name: 'setRaidGacha',
-          is_enabled: isChecked,
+          methodName: 'setRaidGacha',
+          isEnabled: isChecked,
         },
         function(response) {
           console.log(response);

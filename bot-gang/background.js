@@ -2,33 +2,33 @@ const SEQUENCES = [
   // ↓ レイド救援 ↓
   {
     description: 'go to top.',
-    method_name: 'jump_top',
+    methodName: 'jumpTop',
     wait: 2,
   },
   {
     description: 'move mypage.',
-    method_name: 'go_mypage',
+    methodName: 'goMypage',
     wait: 2,
   },
   {
     description: 'go raid list.',
-    method_name: 'go_raid_list',
+    methodName: 'goRaidList',
     wait: 2,
     fail: {
-      skip_steps: 4
+      skipSteps: 4
     }
   },
   {
     description: 'go raid help.',
-    method_name: 'go_raid_help',
+    methodName: 'goRaidHelp',
     wait: 2,
     fail: {
-      skip_steps: 3
+      skipSteps: 3
     }
   },
   {
     description: 'attack to raid.',
-    method_name: 'attack_raid_free',
+    methodName: 'attackRaidFree',
     wait: 3,
     success: {
       skip_step: 1,
@@ -37,206 +37,206 @@ const SEQUENCES = [
   // 自分で殴る
   {
     description: 'attack to raid free.',
-    method_name: 'attack_raid_20',
+    methodName: 'attackRaid20',
     wait: 3,
   },
   // ↑ レイド救援 ↑
   // ↓ 自分のレイド ↓
   {
     description: 'go to top.',
-    method_name: 'jump_top',
+    methodName: 'jumpTop',
     wait: 2,
   },
   {
     description: 'move mypage.',
-    method_name: 'go_mypage',
+    methodName: 'goMypage',
     wait: 2,
   },
   {
     description: 'go own raid',
-    method_name: 'go_own_raid',
+    methodName: 'goOwnRaid',
     wait: 2,
     fail: {
-      skip_steps: 3
+      skipSteps: 3
     }
   },
   {
     description: 'attack to raid free.',
-    method_name: 'attack_raid_free',
+    methodName: 'attackRaidFree',
     wait: 3,
     success: {
-      skip_steps: 2
+      skipSteps: 2
     }
   },
   // 無料で殴れなかったら救援
   {
     description: 'request raid help',
-    method_name: 'request_raid_help',
+    methodName: 'requestRaidHelp',
     wait: 3,
     success: {
-      skip_steps: 1
+      skipSteps: 1
     }
   },
   // 救援できなかったら自分で殴る
   {
     description: 'attack to raid free.',
-    method_name: 'attack_raid_20',
+    methodName: 'attackRaid20',
     wait: 3,
   },
   // ↑ 自分のレイド ↑
   // ↓ クエスト ↓
   {
     description: 'go to top.',
-    method_name: 'jump_top',
+    methodName: 'jumpTop',
     wait: 2,
   },
   {
     description: 'move mypage.',
-    method_name: 'go_mypage',
+    methodName: 'goMypage',
     wait: 2,
   },
   {
     description: 'go quest top.',
-    method_name: 'go_quest',
+    methodName: 'goQuest',
     wait: 2,
     fail: {
-      reset_step: true,
+      resetStep: true,
     }
   },
   // 覇圏タブに行ってみる
   {
     description: 'go haken tab.',
-    method_name: 'go_quest_haken_tab',
+    methodName: 'goQuestHakenTab',
     wait: 2,
     fail: {
-      skip_steps: 5
+      skipSteps: 5
     }
   },
   {
     description: 'quest exec.',
-    method_name: 'quest_exec',
+    methodName: 'questExec',
     wait: 2,
     fail: {
-      skip_steps: 4
+      skipSteps: 4
     }
   },
   // 覇圏が駄目な時のため期間限定タブに行ってみる
   {
     description: 'go gentei tab.',
-    method_name: 'go_quest_gentei_tab',
+    methodName: 'goQuestGenteiTab',
     wait: 2,
     fail: {
-      skip_steps: 3
+      skipSteps: 3
     }
   },
   {
     description: 'quest exec.',
-    method_name: 'quest_exec',
+    methodName: 'questExec',
     wait: 2,
     success: {
-      skip_steps: 2
+      skipSteps: 2
     }
   },
   // ボスを殴ってみる
   {
     description: 'attack quest boss.',
-    method_name: 'attack_quest_boss',
+    methodName: 'attackQuestBoss',
     wait: 2,
     success: {
-      skip_steps: 1
+      skipSteps: 1
     }
   },
   // クエストのルーレット
   {
     description: 'quest item challenge',
-    method_name: 'quest_item_challenge',
+    methodName: 'questItemChallenge',
     wait: 2,
   },
   // ↑ クエスト ↑
   // ↓ 10000絆Pガチャ ↓
   {
     description: 'go to top.',
-    method_name: 'jump_top',
+    methodName: 'jumpTop',
     wait: 2,
   },
   {
     description: 'move mypage.',
-    method_name: 'go_mypage',
+    methodName: 'goMypage',
     wait: 2,
   },
   {
     description: 'go gacha.',
-    method_name: 'go_gacha',
+    methodName: 'goGacha',
     wait: 3,
   },
   {
     description: 'go gacha notmal tab.',
-    method_name: 'go_gacha_normal_tab',
+    methodName: 'goGachaNormalTab',
     wait: 3,
   },
   {
     description: 'draw 10000 kizuna p gacha.',
-    method_name: 'draw_10000_kizuna_gacha',
+    methodName: 'draw10000KizunaGacha',
     wait: 3,
   },
   // ↑ 10000絆Pガチャ ↑
   // ↓ 新着情報 ↓
   {
     description: 'go to top.',
-    method_name: 'jump_top',
+    methodName: 'jumpTop',
     wait: 2,
   },
   {
     description: 'move mypage.',
-    method_name: 'go_mypage',
+    methodName: 'goMypage',
     wait: 2,
   },
   // コインくじ
   {
     description: 'news lottery',
-    method_name: 'go_lottery',
+    methodName: 'goLottery',
     wait: 2,
     fail: {
-      skip_steps: 1,
+      skipSteps: 1,
     }
   },
   {
     description: 'draw lottery',
-    method_name: 'draw_lottery',
+    methodName: 'drawLottery',
     wait: 2,
     success: {
-      reset_step: true,
+      resetStep: true,
     }
   },
   // 未受け取りレイド報酬
   {
     description: 'news raid reward',
-    method_name: 'get_raid_reward',
+    methodName: 'getRaidReward',
     wait: 2,
     success: {
-      reset_step: true,
+      resetStep: true,
     }
   },
   // プレゼント受け取り
   {
     description: 'go present',
-    method_name: 'go_present',
+    methodName: 'goPresent',
     wait: 2,
     fail: {
-      skip_steps: 1,
+      skipSteps: 1,
     }
   },
   {
     description: 'get present all',
-    method_name: 'get_present_all',
+    methodName: 'getPresentAll',
     wait: 2,
   },
 ];
 
 const OPTION_METHODS = {
   setEnabled: function (request, sender, sendResponse) {
-    if (request.is_enabled) {
-      start(request.tab_id);
+    if (request.isEnabled) {
+      start(request.tabId);
     } else {
       stop();
     }
@@ -247,7 +247,7 @@ const OPTION_METHODS = {
     return true;
   },
   setRaidGacha: function (request, sender, sendResponse) {
-    isDrawRaidGacha = request.is_enabled;
+    isDrawRaidGacha = request.isEnabled;
 
     let response = {msg: `setRaidGacha done.: {${JSON.stringify(request)}}`};
     sendResponse(response);
@@ -273,7 +273,7 @@ chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   info("background.js message received. -> " + JSON.stringify(request));
 
-  return OPTION_METHODS[request.method_name](request, sender, sendResponse);
+  return OPTION_METHODS[request.methodName](request, sender, sendResponse);
 });
 
 
@@ -286,7 +286,7 @@ function stop() {
   isRunning = false;
 }
 
-function start(tab_id) {
+function start(tabId) {
   if (isRunning) {
     return;
   }
@@ -294,25 +294,28 @@ function start(tab_id) {
   info("start!");
   isRunning = true;
 
-  exec_sequence(0, tab_id);
+  execSequence(0, tabId);
 }
 
-function exec_sequence(index, tab_id) {
+function execSequence(index, tabId) {
   if (!isRunning) {
     return;
   }
   if (index >= SEQUENCES.length) {
     // 全部終わったらはじめに戻る
-    exec_sequence(0, tab_id);
+    execSequence(0, tabId);
     return;
   }
 
   let sequence = SEQUENCES[index];
-  info("exec_sequence[" + index + "] (" + sequence['description'] + ")");
+  info("execSequence[" + index + "] (" + sequence['description'] + ")");
+
+  // フィルターがあったら確認
+  // if (typeof)
 
   // main.jsにメッセージを送る
-    chrome.tabs.sendMessage(tab_id, {
-      method_name: sequence.method_name
+    chrome.tabs.sendMessage(tabId, {
+      methodName: sequence.methodName
     }, function(response) {
       // main.jsから処理完了通知がきたら次の処理を送る
       info("response receive. " + JSON.stringify(response));
@@ -335,19 +338,19 @@ function exec_sequence(index, tab_id) {
 
       if (nextAction) {
         // 処理をスキップ
-        if (typeof nextAction.skip_steps != 'undefined') {
-          nextIndex += nextAction.skip_steps;
+        if (typeof nextAction.skipSteps != 'undefined') {
+          nextIndex += nextAction.skipSteps;
         }
         // 処理をはじめに戻す
         if (
-          typeof nextAction.reset_step != 'undefined'
-          && nextAction.reset_step
+          typeof nextAction.resetStep != 'undefined'
+          && nextAction.resetStep
         ) {
           nextIndex = 0;
         }
       }
 
-      setTimeout(exec_sequence.bind(this, nextIndex, tab_id), sequence['wait'] * 1000);
+      setTimeout(execSequence.bind(this, nextIndex, tabId), sequence['wait'] * 1000);
     });
 
 }
