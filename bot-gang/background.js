@@ -178,7 +178,7 @@ const SEQUENCES = [
   },
   {
     description: 'draw 10000 kizuna p gacha.',
-    methodName: 'draw10000KizunaGacha',
+    methodName: 'drawKizunaGacha',
     wait: 3,
     success: {
       skipSteps: 2

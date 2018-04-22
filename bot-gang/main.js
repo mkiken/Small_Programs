@@ -18,8 +18,15 @@ const METHODS = {
     goGachaNormalTab: function (responseCallback) {
       clickElement('div#gacha > ul > li:nth-child(3) > a', responseCallback);
     },
-    draw10000KizunaGacha: function (responseCallback) {
-      clickElement('a.btn-gacha[href*="gacha/gacha_draw"]', responseCallback);
+    drawKizunaGacha: function (responseCallback) {
+      clickElement(
+        'a.btn-gacha[href*="gacha/gacha_draw"]',
+         responseCallback,
+         function () {
+           // 失敗したら周年ガチャを引いてみる
+           clickElement('img.btn-gacha', responseCallback);
+         }
+       );
     },
     goGachaQuestTab: function (responseCallback) {
       clickElement('div#gacha > ul > li:nth-child(2) > a', responseCallback);
