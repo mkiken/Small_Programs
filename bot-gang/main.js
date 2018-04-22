@@ -57,7 +57,22 @@ const METHODS = {
     quest_item_challenge: function (response_callback) {
       // TODO 動かないので直す
       click_element('div#reel > canvas', response_callback);
-    }
+    },
+    go_lottery: function (response_callback) {
+      click_news('login_bonus/lottery', response_callback);
+    },
+    draw_lottery: function (response_callback) {
+      click_element('div#coin_kuji a[href*="login_bonus/lottery_exec"]', response_callback);
+    },
+    get_raid_reward: function (response_callback) {
+      click_news('raid/get_reward_all', response_callback);
+    },
+    go_present: function (response_callback) {
+      click_news('present', response_callback);
+    },
+    get_present_all: function (response_callback) {
+      click_element('div#gift a[href*="present/receive_presents"]', response_callback);
+    },
 };
 
 //メッセージリスナー
@@ -67,6 +82,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
   return true;
 });
+
+function click_news(href, callback)
+{
+  click_element(`div.js-popup ul.linkList li > a[href*="${href}"]`, callback);
+}
 
 function jump(url) {
   info("url -> " + url);
@@ -98,7 +118,9 @@ function click_element(selector, success_callback, fail_callback = null) {
        result: false
      });
    } else {
-     success_callback();
+     success_callback({
+       result: false
+     });
    }
 }
 

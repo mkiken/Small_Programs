@@ -180,6 +180,57 @@ const SEQUENCES = [
     wait: 3,
   },
   // ↑ 10000絆Pガチャ ↑
+  // ↓ 新着情報 ↓
+  {
+    description: 'go to top.',
+    method_name: 'jump_top',
+    wait: 2,
+  },
+  {
+    description: 'move mypage.',
+    method_name: 'go_mypage',
+    wait: 2,
+  },
+  // コインくじ
+  {
+    description: 'news lottery',
+    method_name: 'go_lottery',
+    wait: 2,
+    fail: {
+      skip_steps: 1,
+    }
+  },
+  {
+    description: 'draw lottery',
+    method_name: 'draw_lottery',
+    wait: 2,
+    success: {
+      reset_step: true,
+    }
+  },
+  // 未受け取りレイド報酬
+  {
+    description: 'news raid reward',
+    method_name: 'get_raid_reward',
+    wait: 2,
+    success: {
+      reset_step: true,
+    }
+  },
+  // プレゼント受け取り
+  {
+    description: 'go present',
+    method_name: 'go_present',
+    wait: 2,
+    fail: {
+      skip_steps: 1,
+    }
+  },
+  {
+    description: 'get present all',
+    method_name: 'get_present_all',
+    wait: 2,
+  },
 ];
 
 var isRunning = false;
@@ -251,7 +302,7 @@ function exec_sequence(index, tab_id) {
       let nextIndex = index + 1;
       let nextAction = null;
       if (
-        typeof result !== 'undefined'
+        response
         && typeof response.result !== 'undefined'
         && response.result == false
       ) {
