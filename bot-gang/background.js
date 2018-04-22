@@ -1,4 +1,5 @@
 const SEQUENCES = [
+  /*
   // ↓ レイド救援 ↓
   {
     description: 'go to top.',
@@ -152,6 +153,7 @@ const SEQUENCES = [
     methodName: 'questItemChallenge',
     wait: 2,
   },
+  */
   // ↑ クエスト ↑
   // ↓ 10000絆Pガチャ ↓
   {
@@ -178,8 +180,28 @@ const SEQUENCES = [
     description: 'draw 10000 kizuna p gacha.',
     methodName: 'draw10000KizunaGacha',
     wait: 3,
+    success: {
+      skipSteps: 2
+    }
+  },
+  {
+    description: 'go gacha quest tab.',
+    methodName: 'goGachaQuestTab',
+    wait: 3,
+    beforeFilter: function () {
+      return isDrawRaidGacha;
+    }
+  },
+  {
+    description: 'draw quest gacha.',
+    methodName: 'drawQuestGacha',
+    wait: 3,
+    beforeFilter: function () {
+      return isDrawRaidGacha;
+    }
   },
   // ↑ 10000絆Pガチャ ↑
+  /*
   // ↓ 新着情報 ↓
   {
     description: 'go to top.',
@@ -231,6 +253,7 @@ const SEQUENCES = [
     methodName: 'getPresentAll',
     wait: 2,
   },
+  */
 ];
 
 const OPTION_METHODS = {
@@ -311,7 +334,13 @@ function execSequence(index, tabId) {
   info("execSequence[" + index + "] (" + sequence['description'] + ")");
 
   // フィルターがあったら確認
-  // if (typeof)
+  if (typeof sequence.beforeFilter !== 'undefined') {
+    // スキップ
+    if ( ! sequence.beforeFilter()) {
+      execSequence(index + 1, tabId);
+      return;
+    }
+  }
 
   // main.jsにメッセージを送る
     chrome.tabs.sendMessage(tabId, {

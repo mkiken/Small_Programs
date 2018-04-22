@@ -15,7 +15,8 @@ const OPTION_SETTINGS = {
     },
     onClick: function () {
       let isChecked = this.checked;
-      chrome.storage.sync.set({isEnabled: isChecked}, function() {
+      chrome.storage.sync.set(
+        {[OPTION_SETTINGS.isEnabled.storageKey]: isChecked}, function() {
         console.log("is_checked is " + isChecked);
         // 現在開いているタブIDを送る
         chrome.tabs.query(
@@ -54,7 +55,7 @@ const OPTION_SETTINGS = {
     },
     onClick: function () {
       let isChecked = this.checked;
-      chrome.storage.sync.set({isEnabled: isChecked}, function() {
+      chrome.storage.sync.set({[OPTION_SETTINGS.raidGacha.storageKey]: isChecked}, function() {
         console.log("is_checked is " + isChecked);
         chrome.runtime.sendMessage({
           methodName: 'setRaidGacha',

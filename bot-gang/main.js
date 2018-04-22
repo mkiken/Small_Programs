@@ -19,7 +19,13 @@ const METHODS = {
       clickElement('div#gacha > ul > li:nth-child(3) > a', responseCallback);
     },
     draw10000KizunaGacha: function (responseCallback) {
-      clickElement('a.btn-gacha', responseCallback);
+      clickElement('a.btn-gacha[href*="gacha/gacha_draw"]', responseCallback);
+    },
+    goGachaQuestTab: function (responseCallback) {
+      clickElement('div#gacha > ul > li:nth-child(2) > a', responseCallback);
+    },
+    drawQuestGacha: function (responseCallback) {
+      clickElement('a.btn-gacha[href*="gacha/gacha_draw"]', responseCallback);
     },
     goRaidList: function (responseCallback) {
       clickElement('div.ico-resque > a', responseCallback);
