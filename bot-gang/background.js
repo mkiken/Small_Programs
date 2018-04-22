@@ -240,7 +240,16 @@ const OPTION_METHODS = {
     } else {
       stop();
     }
-    let response = {msg: "from main"};
+
+    let response = {msg: `setEnabled done.: {${JSON.stringify(request)}}`};
+    sendResponse(response);
+
+    return true;
+  },
+  setRaidGacha: function (request, sender, sendResponse) {
+    isDrawRaidGacha = request.is_enabled;
+
+    let response = {msg: `setRaidGacha done.: {${JSON.stringify(request)}}`};
     sendResponse(response);
 
     return true;
@@ -248,6 +257,7 @@ const OPTION_METHODS = {
 };
 
 var isRunning = false;
+var isDrawRaidGacha = false;
 
 chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
   chrome.declarativeContent.onPageChanged.addRules([{
