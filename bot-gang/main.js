@@ -19,14 +19,18 @@ const METHODS = {
       clickElement('div#gacha > ul > li:nth-child(3) > a', responseCallback);
     },
     drawKizunaGacha: function (responseCallback) {
+      // まず周年ガチャを引いてみる
       clickElement(
-        'a.btn-gacha[href*="gacha/gacha_draw"]',
-         responseCallback,
-         function () {
-           // 失敗したら周年ガチャを引いてみる
-           clickElement('img.btn-gacha', responseCallback);
-         }
-       );
+        'img.btn-gacha',
+        responseCallback,
+        function () {
+          // 次に10000絆Pガチャ
+          clickElement(
+            'a.btn-gacha[href*="gacha/gacha_draw"]',
+            responseCallback
+          );
+        }
+      );
     },
     goGachaQuestTab: function (responseCallback) {
       clickElement('div#gacha > ul > li:nth-child(2) > a', responseCallback);

@@ -1,5 +1,4 @@
 const SEQUENCES = [
-  /*
   // ↓ レイド救援 ↓
   {
     description: 'go to top.',
@@ -153,9 +152,8 @@ const SEQUENCES = [
     methodName: 'questItemChallenge',
     wait: 2,
   },
-  */
   // ↑ クエスト ↑
-  // ↓ 10000絆Pガチャ ↓
+  // ↓ ガチャ ↓
   {
     description: 'go to top.',
     methodName: 'jumpTop',
@@ -171,6 +169,7 @@ const SEQUENCES = [
     methodName: 'goGacha',
     wait: 3,
   },
+  // 10000絆Pガチャ
   {
     description: 'go gacha notmal tab.',
     methodName: 'goGachaNormalTab',
@@ -184,6 +183,7 @@ const SEQUENCES = [
       skipSteps: 2
     }
   },
+  // クエストガチャ
   {
     description: 'go gacha quest tab.',
     methodName: 'goGachaQuestTab',
@@ -200,8 +200,7 @@ const SEQUENCES = [
       return isDrawRaidGacha;
     }
   },
-  // ↑ 10000絆Pガチャ ↑
-  /*
+  // ↑ ガチャ ↑
   // ↓ 新着情報 ↓
   {
     description: 'go to top.',
@@ -253,7 +252,6 @@ const SEQUENCES = [
     methodName: 'getPresentAll',
     wait: 2,
   },
-  */
 ];
 
 const OPTION_METHODS = {
