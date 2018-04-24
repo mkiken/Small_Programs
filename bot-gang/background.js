@@ -103,21 +103,24 @@ const SEQUENCES = [
       resetStep: true,
     }
   },
+  // クエストのルーレット
+  {
+    description: 'quest item challenge',
+    methodName: 'questItemChallenge',
+    wait: 2,
+  },
   // 覇圏タブに行ってみる
   {
     description: 'go haken tab.',
     methodName: 'goQuestHakenTab',
     wait: 2,
-    fail: {
-      skipSteps: 5
-    }
   },
   {
     description: 'quest exec.',
     methodName: 'questExec',
     wait: 2,
-    fail: {
-      skipSteps: 4
+    success: {
+      skipSteps: 3
     }
   },
   // 覇圏が駄目な時のため期間限定タブに行ってみる
@@ -125,31 +128,16 @@ const SEQUENCES = [
     description: 'go gentei tab.',
     methodName: 'goQuestGenteiTab',
     wait: 2,
-    fail: {
-      skipSteps: 3
-    }
   },
   {
     description: 'quest exec.',
     methodName: 'questExec',
     wait: 2,
-    success: {
-      skipSteps: 2
-    }
   },
   // ボスを殴ってみる
   {
     description: 'attack quest boss.',
     methodName: 'attackQuestBoss',
-    wait: 2,
-    success: {
-      skipSteps: 1
-    }
-  },
-  // クエストのルーレット
-  {
-    description: 'quest item challenge',
-    methodName: 'questItemChallenge',
     wait: 2,
   },
   // ↑ クエスト ↑

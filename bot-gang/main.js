@@ -9,7 +9,11 @@ const METHODS = {
       clickElement(
         'li.btn-mypage > a',
         responseCallback,
-        clickElement.bind(this, 'div.mypage_btn > a', responseCallback)
+        clickElement.bind(
+          null,
+          'div.mypage_btn > a',
+          responseCallback
+        )
       )
     },
     goGacha: function (responseCallback) {
@@ -72,8 +76,7 @@ const METHODS = {
       clickElement('div#quest a[href*="quest/boss_battle_flash"]', responseCallback);
     },
     questItemChallenge: function (responseCallback) {
-      // TODO 動かないので直す
-      clickElement('div#reel > canvas', responseCallback);
+      clickFlash(responseCallback);
     },
     goLottery: function (responseCallback) {
       clickNews('login_bonus/lottery', responseCallback);
@@ -90,6 +93,7 @@ const METHODS = {
     getPresentAll: function (responseCallback) {
       clickElement('div#gift a[href*="present/receive_presents"]', responseCallback);
     },
+
 };
 
 //メッセージリスナー
@@ -147,4 +151,28 @@ function getElement(selector) {
     warn(selector + " element not found.");
   }
   return result;
+}
+
+function clickFlash(callback) {
+  let evt = document.createEvent('MouseEvents');
+  evt.initMouseEvent(
+    'mousedown',
+    true,
+    true,
+    window,
+    1,
+    0,
+    0,
+    document.getElementsByTagName('canvas')[0].getBoundingClientRect().x
+    + document.getElementsByTagName('canvas')[0].style.width.match(/[0-9]*/)[0]/2,
+    document.getElementsByTagName('canvas')[0].getBoundingClientRect().y
+    + document.getElementsByTagName('canvas')[0].style.height.match(/[0-9]*/)[0]/2,
+    false,
+    false,
+    false,
+    0,
+    null
+  );
+  document.getElementsByTagName('canvas')[0].dispatchEvent(evt);
+  callback();
 }
