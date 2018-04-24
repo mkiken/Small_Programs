@@ -64,10 +64,10 @@ const METHODS = {
       clickElement('div.btn-quest > a', responseCallback);
     },
     goQuestHakenTab: function (responseCallback) {
-      clickElement('div#quest > ul > li:nth-child(3) > a[href*="quest/index/2"]', responseCallback);
+      clickElement('div#quest a[href*="quest/index/2"]', responseCallback);
     },
     goQuestGenteiTab: function (responseCallback) {
-      clickElement('div#quest > ul > li:nth-child(2) > a[href*="quest/index/1"]', responseCallback);
+      clickElement('div#quest a[href*="quest/index/1"]', responseCallback);
     },
     questExec: function (responseCallback) {
       clickElement('div.quest_list > a[href*=quest_exec]', responseCallback);
@@ -95,14 +95,6 @@ const METHODS = {
     },
 
 };
-
-//メッセージリスナー
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  info("message received. -> " + JSON.stringify(request));
-  METHODS[request.methodName](sendResponse);
-
-  return true;
-});
 
 function clickNews(href, callback)
 {
@@ -154,25 +146,45 @@ function getElement(selector) {
 }
 
 function clickFlash(callback) {
-  let evt = document.createEvent('MouseEvents');
-  evt.initMouseEvent(
-    'mousedown',
-    true,
-    true,
-    window,
-    1,
-    0,
-    0,
-    document.getElementsByTagName('canvas')[0].getBoundingClientRect().x
-    + document.getElementsByTagName('canvas')[0].style.width.match(/[0-9]*/)[0]/2,
-    document.getElementsByTagName('canvas')[0].getBoundingClientRect().y
-    + document.getElementsByTagName('canvas')[0].style.height.match(/[0-9]*/)[0]/2,
-    false,
-    false,
-    false,
-    0,
-    null
-  );
-  document.getElementsByTagName('canvas')[0].dispatchEvent(evt);
-  callback();
+  let cvs = getElement('canvas');
+
+  if (!cvs) {
+    callback();
+    return;
+  }
+
+  // flashが表示されるまで少し待つ
+  setTimeout(function () {
+    let evt = document.createEvent('MouseEvents');
+
+    evt.initMouseEvent(
+      'mousedown',
+      true,
+      true,
+      window,
+      1,
+      0,
+      0,
+      cvs.getBoundingClientRect().x + cvs.style.width.match(/[0-9]*/)[0]/2,
+      cvs.getBoundingClientRect().y + cvs.style.height.match(/[0-9]*/)[0]/2,
+      false,
+      false,
+      false,
+      0,
+      null
+    );
+    cvs.dispatchEvent(evt);
+    callback();
+  }, 3000);
+
+}
+
+window.onload = function () {
+  //メッセージリスナー
+  chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    info("message received. -> " + JSON.stringify(request));
+    METHODS[request.methodName](sendResponse);
+
+    return true;
+  });
 }

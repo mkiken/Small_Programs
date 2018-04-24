@@ -107,7 +107,7 @@ const SEQUENCES = [
   {
     description: 'quest item challenge',
     methodName: 'questItemChallenge',
-    wait: 2,
+    wait: 6,
   },
   // 覇圏タブに行ってみる
   {
@@ -119,9 +119,6 @@ const SEQUENCES = [
     description: 'quest exec.',
     methodName: 'questExec',
     wait: 2,
-    success: {
-      skipSteps: 3
-    }
   },
   // 覇圏が駄目な時のため期間限定タブに行ってみる
   {
@@ -167,9 +164,6 @@ const SEQUENCES = [
     description: 'draw 10000 kizuna p gacha.',
     methodName: 'drawKizunaGacha',
     wait: 3,
-    success: {
-      skipSteps: 2
-    }
   },
   // クエストガチャ
   {
@@ -178,6 +172,9 @@ const SEQUENCES = [
     wait: 3,
     beforeFilter: function () {
       return isDrawRaidGacha;
+    },
+    fail: {
+      skipSteps: 1
     }
   },
   {
@@ -265,25 +262,13 @@ const OPTION_METHODS = {
   }
 };
 
+const STORAGE_KEYS = {
+  isEnabled: 'isEnabled',
+  raidGacha: 'raidGacha'
+};
+
 var isRunning = false;
 var isDrawRaidGacha = false;
-
-chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
-  chrome.declarativeContent.onPageChanged.addRules([{
-    conditions: [new chrome.declarativeContent.PageStateMatcher({
-      pageUrl: {hostEquals: 'gang-trump.gree-pf.net'},
-    })
-    ],
-        actions: [new chrome.declarativeContent.ShowPageAction()]
-  }]);
-});
-
-//メッセージリスナー
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  info("background.js message received. -> " + JSON.stringify(request));
-
-  return OPTION_METHODS[request.methodName](request, sender, sendResponse);
-});
 
 
 function stop() {
@@ -317,7 +302,7 @@ function execSequence(index, tabId) {
   }
 
   let sequence = SEQUENCES[index];
-  info("execSequence[" + index + "] (" + sequence['description'] + ")");
+  info(sequence['description'] + "[" + index + "]");
 
   // フィルターがあったら確認
   if (typeof sequence.beforeFilter !== 'undefined') {
@@ -333,7 +318,6 @@ function execSequence(index, tabId) {
       methodName: sequence.methodName
     }, function(response) {
       // main.jsから処理完了通知がきたら次の処理を送る
-      info("response receive. " + JSON.stringify(response));
       let nextIndex = index + 1;
       let nextAction = null;
       if (
@@ -380,4 +364,33 @@ function warn(msg) {
 
 function createLogMessage(msg) {
   return (new Date()).toString() + ": " + msg;
+}
+
+window.onload = function () {
+  chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
+    chrome.declarativeContent.onPageChanged.addRules([{
+      conditions: [new chrome.declarativeContent.PageStateMatcher({
+        pageUrl: {hostEquals: 'gang-trump.gree-pf.net'},
+      })
+    ],
+    actions: [new chrome.declarativeContent.ShowPageAction()]
+    }]);
+  });
+
+  //メッセージリスナー
+  chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    info("background.js message received. -> " + JSON.stringify(request));
+
+    return OPTION_METHODS[request.methodName](request, sender, sendResponse);
+  });
+
+  // 設定読み込み
+  chrome.storage.sync.get(STORAGE_KEYS.raidGacha, function(data) {
+    isDrawRaidGacha = data[STORAGE_KEYS.raidGacha] ? true : false;
+  });
+
+  // はじめは無効にする
+  chrome.storage.sync.set({[STORAGE_KEYS.isEnabled]: false}, function() {
+    isRunning = false;
+  });
 }
