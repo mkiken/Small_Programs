@@ -69,6 +69,9 @@ const METHODS = {
     goQuestGenteiTab: function (responseCallback) {
       clickElement('div#quest a[href*="quest/index/1"]', responseCallback);
     },
+    useHakenTicket: function (responseCallback) {
+      clickElement('div.quest_list > a[href*=use_hegemony_ticket]', responseCallback);
+    },
     questExec: function (responseCallback) {
       clickElement('div.quest_list > a[href*=quest_exec]', responseCallback);
     },

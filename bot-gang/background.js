@@ -120,6 +120,14 @@ const SEQUENCES = [
     methodName: 'questExec',
     wait: 2,
   },
+  {
+    description: 'use haken ticket.',
+    methodName: 'useHakenTicket',
+    wait: 2,
+    success: {
+      skipSteps: 3
+    }
+  },
   // 覇圏が駄目な時のため期間限定タブに行ってみる
   {
     description: 'go gentei tab.',
