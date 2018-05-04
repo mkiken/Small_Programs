@@ -40,7 +40,7 @@ const METHODS = {
       clickElement('div#gacha > ul > li:nth-child(2) > a', responseCallback);
     },
     drawQuestGacha: function (responseCallback) {
-      clickElement('a.btn-gacha[href*="gacha/gacha_draw"]', responseCallback);
+      clickElement('a.btn-gacha[href*="gacha/gacha_draw/10"]', responseCallback);
     },
     goRaidList: function (responseCallback) {
       clickElement('div.ico-resque > a', responseCallback);
