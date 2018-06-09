@@ -222,6 +222,36 @@ const SEQUENCES = [
       resetStep: true,
     }
   },
+  // 不良をぶっ飛ばす
+  {
+    description: 'go Grow',
+    methodName: 'goGrow',
+    wait: 2,
+    fail: {
+      skipSteps: 2,
+    }
+  },
+  // アイテム使用confirm
+  {
+    description: 'confirm grow item',
+    methodName: 'confirmGrowItem',
+    wait: 2,
+    fail: {
+      skipSteps: 1,
+    }
+  },
+  // アイテムを使う
+  {
+    description: 'use grow item',
+    methodName: 'useGrowItem',
+    wait: 2,
+  },
+  // バトル
+  {
+    description: 'grow battle',
+    methodName: 'battleGrow',
+    wait: 2,
+  },
   // 未受け取りレイド報酬
   {
     description: 'news raid reward',

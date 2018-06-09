@@ -96,7 +96,18 @@ const METHODS = {
     getPresentAll: function (responseCallback) {
       clickElement('div#gift a[href*="present/receive_presents"]', responseCallback);
     },
-
+    goGrow: function (responseCallback) {
+      clickNews('grow/index', responseCallback);
+    },
+    confirmGrowItem: function (responseCallback) {
+      clickElement('div.o-talign-c a.popup-btn.js-item_used_confirm', responseCallback);
+    },
+    useGrowItem: function (responseCallback) {
+      clickElement('a[href*="grow/use_item/2"]', responseCallback);
+    },
+    battleGrow: function (responseCallback) {
+      clickElement('a[href*="grow/battle_flash"]', responseCallback);
+    },
 };
 
 function clickNews(href, callback)
