@@ -407,8 +407,12 @@ function createLogMessage(msg) {
 window.onload = function () {
   chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
     chrome.declarativeContent.onPageChanged.addRules([{
-      conditions: [new chrome.declarativeContent.PageStateMatcher({
+      conditions: [
+        new chrome.declarativeContent.PageStateMatcher({
         pageUrl: {hostEquals: 'gang-trump.gree-pf.net'},
+      }),
+        new chrome.declarativeContent.PageStateMatcher({
+        pageUrl: {hostEquals: 'g12024505.sp.pf.mbga.jp'},
       })
     ],
     actions: [new chrome.declarativeContent.ShowPageAction()]

@@ -1,9 +1,7 @@
-const TOP_URL = "http://gang-trump.gree-pf.net/";
-
 const METHODS = {
     jumpTop: function (responseCallback) {
       responseCallback();
-      jump(TOP_URL);
+      jump(location.protocol + "//" + location.host);
     },
     goMypage: function (responseCallback) {
       clickElement(

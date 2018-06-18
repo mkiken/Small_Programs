@@ -24,7 +24,7 @@
     },
     "content_scripts": [
       {
-        "matches": ["http://gang-trump.gree-pf.net/*"],
+        "matches": ["http://gang-trump.gree-pf.net/*","http://g12024505.sp.pf.mbga.jp/*"],
         "js": ["main.js"]
       }
     ],
