@@ -1,7 +1,7 @@
 const METHODS = {
     jumpTop: function (responseCallback) {
       responseCallback();
-      jump(location.protocol + "//" + location.host);
+      jump(getBaseUrl());
     },
     goMypage: function (responseCallback) {
       clickElement(
@@ -28,7 +28,7 @@ const METHODS = {
         function () {
           // 次に10000絆Pガチャ
           clickElement(
-            'a.btn-gacha[href*="gacha/gacha_draw"]',
+            'a.btn-gacha[href*="' + convertUrl('gacha/gacha_draw') + '"]',
             responseCallback
           );
         }
@@ -38,7 +38,7 @@ const METHODS = {
       clickElement('div#gacha > ul > li:nth-child(2) > a', responseCallback);
     },
     drawQuestGacha: function (responseCallback) {
-      clickElement('a.btn-gacha[href*="gacha/gacha_draw/10"]', responseCallback);
+      clickElement('a.btn-gacha[href*="' + convertUrl('gacha/gacha_draw/10') + '"]', responseCallback);
     },
     goRaidList: function (responseCallback) {
       clickElement('div.ico-resque > a', responseCallback);
@@ -62,10 +62,10 @@ const METHODS = {
       clickElement('div.btn-quest > a', responseCallback);
     },
     goQuestHakenTab: function (responseCallback) {
-      clickElement('div#quest a[href*="quest/index/2"]', responseCallback);
+      clickElement('div#quest a[href*="' + convertUrl('quest/index/2') + '"]', responseCallback);
     },
     goQuestGenteiTab: function (responseCallback) {
-      clickElement('div#quest a[href*="quest/index/1"]', responseCallback);
+      clickElement('div#quest a[href*="' + convertUrl('quest/index/1') + '"]', responseCallback);
     },
     useHakenTicket: function (responseCallback) {
       clickElement('div.quest_list > a[href*=use_hegemony_ticket]', responseCallback);
@@ -74,37 +74,37 @@ const METHODS = {
       clickElement('div.quest_list > a[href*=quest_exec]', responseCallback);
     },
     attackQuestBoss: function (responseCallback) {
-      clickElement('div#quest a[href*="quest/boss_battle_flash"]', responseCallback);
+      clickElement('div#quest a[href*="' + convertUrl('quest/boss_battle_flash') + '"]', responseCallback);
     },
     questItemChallenge: function (responseCallback) {
       clickFlash(responseCallback);
     },
     goLottery: function (responseCallback) {
-      clickNews('login_bonus/lottery', responseCallback);
+      clickNews(convertUrl('login_bonus/lottery'), responseCallback);
     },
     drawLottery: function (responseCallback) {
-      clickElement('div#coin_kuji a[href*="login_bonus/lottery_exec"]', responseCallback);
+      clickElement('div#coin_kuji a[href*="' + convertUrl('login_bonus/lottery_exec') + '"]', responseCallback);
     },
     getRaidReward: function (responseCallback) {
-      clickNews('raid/get_reward_all', responseCallback);
+      clickNews(convertUrl('raid/get_reward_all'), responseCallback);
     },
     goPresent: function (responseCallback) {
       clickNews('present', responseCallback);
     },
     getPresentAll: function (responseCallback) {
-      clickElement('div#gift a[href*="present/receive_presents"]', responseCallback);
+      clickElement('div#gift a[href*="' + convertUrl('present/receive_presents') + '"]', responseCallback);
     },
     goGrow: function (responseCallback) {
-      clickNews('grow/index', responseCallback);
+      clickNews(convertUrl('grow/index'), responseCallback);
     },
     confirmGrowItem: function (responseCallback) {
       clickElement('div.o-talign-c a.popup-btn.js-item_used_confirm', responseCallback);
     },
     useGrowItem: function (responseCallback) {
-      clickElement('a[href*="grow/use_item/2"]', responseCallback);
+      clickElement('a[href*="' + convertUrl('grow/use_item/2') + '"]', responseCallback);
     },
     battleGrow: function (responseCallback) {
-      clickElement('a[href*="grow/battle_flash"]', responseCallback);
+      clickElement('a[href*="' + convertUrl('grow/battle_flash') + '"]', responseCallback);
     },
 };
 
@@ -155,6 +155,22 @@ function getElement(selector) {
     warn(selector + " element not found.");
   }
   return result;
+}
+
+function getBaseUrl(){
+  return location.protocol + "//" + location.host;
+}
+
+function isMobage(url){
+  return getBaseUrl() == 'http://g12024505.sp.pf.mbga.jp';
+}
+
+function convertUrl(url){
+  // mobageの場合はurlをurlencodeする
+  if (isMobage()) {
+    return encodeURIComponent(url);
+  }
+  return url;
 }
 
 function clickFlash(callback) {
