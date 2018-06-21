@@ -52,6 +52,10 @@ const METHODS = {
     attackRaid20: function (responseCallback) {
       clickElement('div#raid div.o-col-2.o-mat-10.o-w-90.o-talign-c a', responseCallback);
     },
+    // ロワイヤルの必殺技
+    attackRaidDeathblow: function (responseCallback) {
+      clickElement('div#raid img[src*="' + convertUrl('raid/button/skill_0bp.png') + '"]', responseCallback);
+    },
     goOwnRaid: function (responseCallback) {
       clickElement('div.ico-appear > a', responseCallback);
     },

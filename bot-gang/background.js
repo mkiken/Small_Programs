@@ -31,12 +31,17 @@ const SEQUENCES = [
     methodName: 'attackRaidFree',
     wait: 3,
     success: {
-      skip_step: 1,
+      skip_step: 2,
     }
   },
   // 自分で殴る
   {
-    description: 'attack to raid free.',
+    description: 'attack to raid deathblow.',
+    methodName: 'attackRaidDeathblow',
+    wait: 3,
+  },
+  {
+    description: 'attack to raid bp20.',
     methodName: 'attackRaid20',
     wait: 3,
   },
@@ -74,10 +79,15 @@ const SEQUENCES = [
     methodName: 'requestRaidHelp',
     wait: 3,
     success: {
-      skipSteps: 1
+      skipSteps: 2
     }
   },
   // 救援できなかったら自分で殴る
+  {
+    description: 'attack to raid deathblow.',
+    methodName: 'attackRaidDeathblow',
+    wait: 3,
+  },
   {
     description: 'attack to raid free.',
     methodName: 'attackRaid20',
