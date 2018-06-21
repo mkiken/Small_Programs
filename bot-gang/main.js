@@ -110,6 +110,24 @@ const METHODS = {
     battleGrow: function (responseCallback) {
       clickElement('a[href*="' + convertUrl('grow/battle_flash') + '"]', responseCallback);
     },
+    // AP回復リクエスト
+    sendApRecoverRequest: function (responseCallback) {
+      clickElement('div#quest img[src*="' + convertUrl('mafia/button/req_send.png') + '"]', responseCallback);
+    },
+    // AP回復ボタン
+    recoverAp: function (responseCallback) {
+      if (isMobage()) {
+        clickElement('a[href*="' + convertUrl('comeback/comeback_result') + '"]', responseCallback);
+      }
+      else {
+        // TODO 実装
+        if (responseCallback) {
+          responseCallback({
+            result: true
+          });
+        }
+      }
+    },
 };
 
 function clickNews(href, callback)

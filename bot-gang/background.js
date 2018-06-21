@@ -155,6 +155,18 @@ const SEQUENCES = [
     methodName: 'attackQuestBoss',
     wait: 2,
   },
+  // AP回復リクエスト
+  {
+    description: 'send ap recover request',
+    methodName: 'sendApRecoverRequest',
+    wait: 2,
+  },
+  // AP回復ボタン
+  {
+    description: 'ap recover',
+    methodName: 'recoverAp',
+    wait: 2,
+  },
   // ↑ クエスト ↑
   // ↓ ガチャ ↓
   {
