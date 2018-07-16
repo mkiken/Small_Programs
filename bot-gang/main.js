@@ -49,6 +49,15 @@ const METHODS = {
     attackRaidFree: function (responseCallback) {
       clickElement('div#raid div.o-talign-c.o-mt-10 > a', responseCallback);
     },
+    attackIdolRaidFree: function (responseCallback) {
+      clickElement('div#all a[href*="' + convertUrl("idol_quest/battle_exec/1") + '"]', responseCallback);
+    },
+    attackIdolRaid50: function (responseCallback) {
+      clickElement('div#all a[href*="' + convertUrl("idol_quest/battle_exec/3") + '"]', responseCallback);
+    },
+    attackIdolRaid20: function (responseCallback) {
+      clickElement('div#all a[href*="' + convertUrl("idol_quest/battle_exec/2") + '"]', responseCallback);
+    },
     attackRaid20: function (responseCallback) {
       clickElement('div#raid div.o-col-2.o-mat-10.o-w-90.o-talign-c a', responseCallback);
     },
@@ -58,6 +67,9 @@ const METHODS = {
     },
     goOwnRaid: function (responseCallback) {
       clickElement('div.ico-appear > a', responseCallback);
+    },
+    goIdolRaid: function (responseCallback) {
+      clickElement('div.ico-idol-quest-appear > a', responseCallback);
     },
     requestRaidHelp: function (responseCallback) {
       clickElement('div#raid div.o-mt-10.o-talign-c > a', responseCallback);

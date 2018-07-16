@@ -4,11 +4,17 @@ const SEQUENCES = [
     description: 'go to top.',
     methodName: 'jumpTop',
     wait: 2,
+    beforeFilter: function () {
+      return ! isIdolEvent;
+    },
   },
   {
     description: 'move mypage.',
     methodName: 'goMypage',
     wait: 2,
+    beforeFilter: function () {
+      return ! isIdolEvent;
+    },
   },
   {
     description: 'go raid list.',
@@ -16,7 +22,10 @@ const SEQUENCES = [
     wait: 2,
     fail: {
       skipSteps: 4
-    }
+    },
+    beforeFilter: function () {
+      return ! isIdolEvent;
+    },
   },
   {
     description: 'go raid help.',
@@ -24,7 +33,10 @@ const SEQUENCES = [
     wait: 2,
     fail: {
       skipSteps: 3
-    }
+    },
+    beforeFilter: function () {
+      return ! isIdolEvent;
+    },
   },
   {
     description: 'attack to raid.',
@@ -32,18 +44,27 @@ const SEQUENCES = [
     wait: 3,
     success: {
       skip_step: 2,
-    }
+    },
+    beforeFilter: function () {
+      return ! isIdolEvent;
+    },
   },
   // 自分で殴る
   {
     description: 'attack to raid deathblow.',
     methodName: 'attackRaidDeathblow',
     wait: 3,
+    beforeFilter: function () {
+      return ! isIdolEvent;
+    },
   },
   {
     description: 'attack to raid bp20.',
     methodName: 'attackRaid20',
     wait: 3,
+    beforeFilter: function () {
+      return ! isIdolEvent;
+    },
   },
   // ↑ レイド救援 ↑
   // ↓ 自分のレイド ↓
@@ -62,16 +83,66 @@ const SEQUENCES = [
     methodName: 'goOwnRaid',
     wait: 2,
     fail: {
-      skipSteps: 3
-    }
+      skipSteps: 8
+    },
+    beforeFilter: function () {
+      return ! isIdolEvent;
+    },
+  },
+  {
+    description: 'go idol raid',
+    methodName: 'goIdolRaid',
+    wait: 2,
+    fail: {
+      skipSteps: 7
+    },
+    beforeFilter: function () {
+      return isIdolEvent;
+    },
   },
   {
     description: 'attack to raid free.',
     methodName: 'attackRaidFree',
     wait: 3,
     success: {
-      skipSteps: 2
-    }
+      skipSteps: 6
+    },
+    beforeFilter: function () {
+      return ! isIdolEvent;
+    },
+  },
+  {
+    description: 'attack to idol 50bp.',
+    methodName: 'attackIdolRaid50',
+    wait: 3,
+    success: {
+      skipSteps: 5
+    },
+    beforeFilter: function () {
+      return isIdolEvent;
+    },
+  },
+  {
+    description: 'attack to idol 20bp.',
+    methodName: 'attackIdolRaid20',
+    wait: 3,
+    success: {
+      skipSteps: 4
+    },
+    beforeFilter: function () {
+      return isIdolEvent;
+    },
+  },
+  {
+    description: 'attack to idol free.',
+    methodName: 'attackIdolRaidFree',
+    wait: 3,
+    success: {
+      skipSteps: 3
+    },
+    beforeFilter: function () {
+      return isIdolEvent;
+    },
   },
   // 無料で殴れなかったら救援
   {
@@ -80,18 +151,27 @@ const SEQUENCES = [
     wait: 3,
     success: {
       skipSteps: 2
-    }
+    },
+    beforeFilter: function () {
+      return ! isIdolEvent;
+    },
   },
   // 救援できなかったら自分で殴る
   {
     description: 'attack to raid deathblow.',
     methodName: 'attackRaidDeathblow',
     wait: 3,
+    beforeFilter: function () {
+      return ! isIdolEvent;
+    },
   },
   {
     description: 'attack to raid free.',
     methodName: 'attackRaid20',
     wait: 3,
+    beforeFilter: function () {
+      return ! isIdolEvent;
+    },
   },
   // ↑ 自分のレイド ↑
   // ↓ クエスト ↓
@@ -124,11 +204,17 @@ const SEQUENCES = [
     description: 'go haken tab.',
     methodName: 'goQuestHakenTab',
     wait: 2,
+    beforeFilter: function () {
+      return ! isIdolEvent;
+    },
   },
   {
     description: 'quest exec.',
     methodName: 'questExec',
     wait: 2,
+    beforeFilter: function () {
+      return ! isIdolEvent;
+    },
   },
   {
     description: 'use haken ticket.',
@@ -136,7 +222,10 @@ const SEQUENCES = [
     wait: 2,
     success: {
       skipSteps: 3
-    }
+    },
+    beforeFilter: function () {
+      return ! isIdolEvent;
+    },
   },
   // 覇圏が駄目な時のため期間限定タブに行ってみる
   {
@@ -319,6 +408,14 @@ const OPTION_METHODS = {
     sendResponse(response);
 
     return true;
+  },
+  setIdolEvent: function (request, sender, sendResponse) {
+    isIdolEvent = request.isEnabled;
+
+    let response = {msg: `setIdolEvent done.: {${JSON.stringify(request)}}`};
+    sendResponse(response);
+
+    return true;
   }
 };
 
@@ -329,6 +426,7 @@ const STORAGE_KEYS = {
 
 var isRunning = false;
 var isDrawRaidGacha = false;
+var isIdolEvent = false;
 
 
 function stop() {
@@ -451,6 +549,9 @@ window.onload = function () {
   // 設定読み込み
   chrome.storage.sync.get(STORAGE_KEYS.raidGacha, function(data) {
     isDrawRaidGacha = data[STORAGE_KEYS.raidGacha] ? true : false;
+  });
+  chrome.storage.sync.get(STORAGE_KEYS.idolEvent, function(data) {
+    isIdolEvent = data[STORAGE_KEYS.idolEvent] ? true : false;
   });
 
   // はじめは無効にする
