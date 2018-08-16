@@ -274,16 +274,16 @@ const SEQUENCES = [
     wait: 3,
   },
   // 10000絆Pガチャ
-  {
-    description: 'go gacha notmal tab.',
-    methodName: 'goGachaNormalTab',
-    wait: 3,
-  },
-  {
-    description: 'draw 10000 kizuna p gacha.',
-    methodName: 'drawKizunaGacha',
-    wait: 3,
-  },
+  // {
+  //   description: 'go gacha notmal tab.',
+  //   methodName: 'goGachaNormalTab',
+  //   wait: 3,
+  // },
+  // {
+  //   description: 'draw 10000 kizuna p gacha.',
+  //   methodName: 'drawKizunaGacha',
+  //   wait: 3,
+  // },
   // クエストガチャ
   {
     description: 'go gacha quest tab.',
