@@ -140,6 +140,9 @@ const METHODS = {
         }
       }
     },
+    collectKitchenItems: function (responseCallback) {
+      clickNews('collect_item_challenge_exec', responseCallback);
+    },
 };
 
 function clickNews(href, callback)

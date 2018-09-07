@@ -339,7 +339,7 @@ const SEQUENCES = [
     methodName: 'goGrow',
     wait: 2,
     fail: {
-      skipSteps: 2,
+      skipSteps: 3,
     }
   },
   // アイテム使用confirm
@@ -348,7 +348,7 @@ const SEQUENCES = [
     methodName: 'confirmGrowItem',
     wait: 2,
     fail: {
-      skipSteps: 1,
+      skipSteps: 2,
     }
   },
   // アイテムを使う
@@ -362,6 +362,15 @@ const SEQUENCES = [
     description: 'grow battle',
     methodName: 'battleGrow',
     wait: 2,
+  },
+  // まりもの食材ルーレットをまとめて回す
+  {
+    description: 'collect kitchen items',
+    methodName: 'collectKitchenItems',
+    wait: 2,
+    success: {
+      resetStep: true,
+    }
   },
   // 未受け取りレイド報酬
   {
@@ -385,6 +394,15 @@ const SEQUENCES = [
     description: 'get present all',
     methodName: 'getPresentAll',
     wait: 2,
+  },
+  // まりもの食材ルーレットをまとめて回す
+  {
+    description: 'collect kitchen items',
+    methodName: 'collectKitchenItems',
+    wait: 2,
+    success: {
+      resetStep: true,
+    }
   },
 ];
 
