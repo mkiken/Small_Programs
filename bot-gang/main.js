@@ -144,10 +144,23 @@ const METHODS = {
       clickNews('collect_item_challenge_exec', responseCallback);
     },
     goTower: function (responseCallback) {
-      clickElement('div.btn-duel-tower > a', responseCallback);
+      clickElement('div.btn-duel.tower > a', responseCallback);
+    },
+    goSelectTower: function (responseCallback) {
+      clickElement('div a[href*="' + convertUrl('tower/select_tower') + '"]', responseCallback);
+    },
+    selectTower: function (responseCallback) {
+      // NOTE: 絶対勝てる初めの塔を選んでいる
+      clickElement('div a[href*="' + convertUrl('tower/current_set/1') + '"]', responseCallback);
     },
     goTowerEnemyList: function (responseCallback) {
       clickElement('div a[href*="' + convertUrl('tower/enemy_list') + '"]', responseCallback);
+    },
+    recoveryTowerBp: function (responseCallback) {
+      clickElement('div.form a[href*="' + convertUrl('tower/consume/') + '"]', responseCallback);
+    },
+    towerBattleConf: function (responseCallback) {
+      clickElement('div a[href*="' + convertUrl('tower/battle_conf') + '"]', responseCallback);
     },
     towerBattleExec: function (responseCallback) {
       clickElement('div a[href*="' + convertUrl('tower/battle_exec') + '"]', responseCallback);

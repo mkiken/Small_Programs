@@ -283,6 +283,25 @@ const SEQUENCES = [
     },
   },
   {
+    description: 'go select tower',
+    methodName: 'goSelectTower',
+    wait: 2,
+    beforeFilter: function () {
+      return isTowerEvent;
+    },
+    fail: {
+      skipSteps: 1
+    },
+  },
+  {
+    description: 'select tower',
+    methodName: 'selectTower',
+    wait: 2,
+    beforeFilter: function () {
+      return isTowerEvent;
+    },
+  },
+  {
     description: 'go tower enemy list',
     methodName: 'goTowerEnemyList',
     wait: 2,
@@ -291,7 +310,23 @@ const SEQUENCES = [
     },
   },
   {
-    description: 'tower battle',
+    description: 'recovery tower bp.',
+    methodName: 'recoveryTowerBp',
+    wait: 2,
+    beforeFilter: function () {
+      return isTowerEvent;
+    },
+  },
+  {
+    description: 'tower battle conf',
+    methodName: 'towerBattleConf',
+    wait: 2,
+    beforeFilter: function () {
+      return isTowerEvent;
+    },
+  },
+  {
+    description: 'tower battle exec.',
     methodName: 'towerBattleExec',
     wait: 2,
     beforeFilter: function () {
@@ -473,6 +508,14 @@ const OPTION_METHODS = {
     isIdolEvent = request.isEnabled;
 
     let response = {msg: `setIdolEvent done.: {${JSON.stringify(request)}}`};
+    sendResponse(response);
+
+    return true;
+  },
+  setTowerEvent: function (request, sender, sendResponse) {
+    isTowerEvent = request.isEnabled;
+
+    let response = {msg: `setTowerEvent done.: {${JSON.stringify(request)}}`};
     sendResponse(response);
 
     return true;
