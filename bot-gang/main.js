@@ -143,6 +143,15 @@ const METHODS = {
     collectKitchenItems: function (responseCallback) {
       clickNews('collect_item_challenge_exec', responseCallback);
     },
+    goTower: function (responseCallback) {
+      clickElement('div.btn-duel-tower > a', responseCallback);
+    },
+    goTowerEnemyList: function (responseCallback) {
+      clickElement('div a[href*="' + convertUrl('tower/enemy_list') + '"]', responseCallback);
+    },
+    towerBattleExec: function (responseCallback) {
+      clickElement('div a[href*="' + convertUrl('tower/battle_exec') + '"]', responseCallback);
+    },
 };
 
 function clickNews(href, callback)

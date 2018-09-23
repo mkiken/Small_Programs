@@ -16,7 +16,7 @@ const OPTION_SETTINGS = {
     onClick: function () {
       let isChecked = this.checked;
       chrome.storage.sync.set(
-        {[OPTION_SETTINGS.isEnabled.storageKey]: isChecked}, function() {
+        {[OPTION_SETTINGS.isEnabled.storageKey]: isChecked}, function() { // HACK 無理やり変数をキーにしている
         console.log("is_checked is " + isChecked);
         // 現在開いているタブIDを送る
         chrome.tabs.query(
@@ -91,6 +91,39 @@ const OPTION_SETTINGS = {
         console.log("is_checked is " + isChecked);
         chrome.runtime.sendMessage({
           methodName: 'setIdolEvent',
+          isEnabled: isChecked,
+        },
+        function(response) {
+          console.log(response);
+        });
+      });
+    },
+    setEventListener: function () {
+      console.log(this);
+      this.dom.addEventListener('click', this.onClick);
+    }
+  },
+
+  // 摩天楼イベント
+  towerEvent: {
+    domId: 'towerEvent',
+    storageKey: 'towerEvent',
+    dom: null,
+    setDom: function () {
+      this.dom = document.getElementById(this.domId);
+    },
+    setOption: function () {
+      let that = this;
+      chrome.storage.sync.get(that.storageKey, function(data) {
+        that.dom.checked = data[that.storageKey] ? true : false;
+      });
+    },
+    onClick: function () {
+      let isChecked = this.checked;
+      chrome.storage.sync.set({[OPTION_SETTINGS.towerEvent.storageKey]: isChecked}, function() {
+        console.log("is_checked is " + isChecked);
+        chrome.runtime.sendMessage({
+          methodName: 'setTowerEvent',
           isEnabled: isChecked,
         },
         function(response) {

@@ -5,7 +5,7 @@ const SEQUENCES = [
     methodName: 'jumpTop',
     wait: 2,
     beforeFilter: function () {
-      return ! isIdolEvent;
+      return ! isIdolEvent && ! isTowerEvent;
     },
   },
   {
@@ -13,7 +13,7 @@ const SEQUENCES = [
     methodName: 'goMypage',
     wait: 2,
     beforeFilter: function () {
-      return ! isIdolEvent;
+      return ! isIdolEvent && ! isTowerEvent;
     },
   },
   {
@@ -24,7 +24,7 @@ const SEQUENCES = [
       skipSteps: 4
     },
     beforeFilter: function () {
-      return ! isIdolEvent;
+      return ! isIdolEvent && ! isTowerEvent;
     },
   },
   {
@@ -35,7 +35,7 @@ const SEQUENCES = [
       skipSteps: 3
     },
     beforeFilter: function () {
-      return ! isIdolEvent;
+      return ! isIdolEvent && ! isTowerEvent;
     },
   },
   {
@@ -46,7 +46,7 @@ const SEQUENCES = [
       skip_step: 2,
     },
     beforeFilter: function () {
-      return ! isIdolEvent;
+      return ! isIdolEvent && ! isTowerEvent;
     },
   },
   // 自分で殴る
@@ -55,7 +55,7 @@ const SEQUENCES = [
     methodName: 'attackRaidDeathblow',
     wait: 3,
     beforeFilter: function () {
-      return ! isIdolEvent;
+      return ! isIdolEvent && ! isTowerEvent;
     },
   },
   {
@@ -63,7 +63,7 @@ const SEQUENCES = [
     methodName: 'attackRaid20',
     wait: 3,
     beforeFilter: function () {
-      return ! isIdolEvent;
+      return ! isIdolEvent && ! isTowerEvent;
     },
   },
   // ↑ レイド救援 ↑
@@ -86,7 +86,7 @@ const SEQUENCES = [
       skipSteps: 8
     },
     beforeFilter: function () {
-      return ! isIdolEvent;
+      return ! isIdolEvent && ! isTowerEvent;
     },
   },
   {
@@ -108,7 +108,7 @@ const SEQUENCES = [
       skipSteps: 6
     },
     beforeFilter: function () {
-      return ! isIdolEvent;
+      return ! isIdolEvent && ! isTowerEvent;
     },
   },
   {
@@ -153,7 +153,7 @@ const SEQUENCES = [
       skipSteps: 2
     },
     beforeFilter: function () {
-      return ! isIdolEvent;
+      return ! isIdolEvent && ! isTowerEvent;
     },
   },
   // 救援できなかったら自分で殴る
@@ -162,7 +162,7 @@ const SEQUENCES = [
     methodName: 'attackRaidDeathblow',
     wait: 3,
     beforeFilter: function () {
-      return ! isIdolEvent;
+      return ! isIdolEvent && ! isTowerEvent;
     },
   },
   {
@@ -170,7 +170,7 @@ const SEQUENCES = [
     methodName: 'attackRaid20',
     wait: 3,
     beforeFilter: function () {
-      return ! isIdolEvent;
+      return ! isIdolEvent && ! isTowerEvent;
     },
   },
   // ↑ 自分のレイド ↑
@@ -257,6 +257,48 @@ const SEQUENCES = [
     wait: 2,
   },
   // ↑ クエスト ↑
+  // ↓ 摩天楼 ↓
+  {
+    description: 'go to top.',
+    methodName: 'jumpTop',
+    wait: 2,
+    beforeFilter: function () {
+      return isTowerEvent;
+    },
+  },
+  {
+    description: 'move mypage.',
+    methodName: 'goMypage',
+    wait: 2,
+    beforeFilter: function () {
+      return isTowerEvent;
+    },
+  },
+  {
+    description: 'go duel tower',
+    methodName: 'goTower',
+    wait: 2,
+    beforeFilter: function () {
+      return isTowerEvent;
+    },
+  },
+  {
+    description: 'go tower enemy list',
+    methodName: 'goTowerEnemyList',
+    wait: 2,
+    beforeFilter: function () {
+      return isTowerEvent;
+    },
+  },
+  {
+    description: 'tower battle',
+    methodName: 'towerBattleExec',
+    wait: 2,
+    beforeFilter: function () {
+      return isTowerEvent;
+    },
+  },
+  // ↑ 摩天楼 ↑
   // ↓ ガチャ ↓
   {
     description: 'go to top.',
@@ -439,12 +481,15 @@ const OPTION_METHODS = {
 
 const STORAGE_KEYS = {
   isEnabled: 'isEnabled',
-  raidGacha: 'raidGacha'
+  raidGacha: 'raidGacha',
+  idolEvent: 'idolEvent',
+  towerEvent: 'towerEvent',
 };
 
 var isRunning = false;
 var isDrawRaidGacha = false;
 var isIdolEvent = false;
+var isTowerEvent = false;
 
 
 function stop() {
@@ -570,6 +615,9 @@ window.onload = function () {
   });
   chrome.storage.sync.get(STORAGE_KEYS.idolEvent, function(data) {
     isIdolEvent = data[STORAGE_KEYS.idolEvent] ? true : false;
+  });
+  chrome.storage.sync.get(STORAGE_KEYS.towerEvent, function(data) {
+    isTowerEvent = data[STORAGE_KEYS.towerEvent] ? true : false;
   });
 
   // はじめは無効にする
