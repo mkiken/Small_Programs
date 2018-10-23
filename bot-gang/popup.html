@@ -2,13 +2,32 @@
 <html>
   <head>
     <meta charset="utf-8"/>
+    <style type="text/css">
+    <!--
+    body {width: 150px;}
+    ul li {
+      list-style: none;
+    }
+    label {
+      margin-left: 5px;
+    }
+    -->
+    </style>
   </head>
   <body>
     <form>
-    <input type="checkbox" id="isEnabled">Enable
-    <input type="checkbox" id="raidGacha">レイドガチャ
-    <input type="checkbox" id="idolEvent">アイドルイベ
-    <input type="checkbox" id="towerEvent">摩天楼
+    <ul>
+    <li><input type="checkbox" id="isEnabled"><label for="isEnabled">Enable</label></li>
+    <li><input type="checkbox" id="isHaken"><label for="isHaken">覇権クエスト</label></li>
+    <li><input type="checkbox" id="raidGacha"><label for="isHaken">レイドガチャ
+</label></li>
+    <li><input type="checkbox" id="mafiaEvent"><label for="isHaken">ロワイヤル
+</label></li>
+    <li><input type="checkbox" id="idolEvent"><label for="isHaken">アイドルイベ
+</label></li>
+    <li><input type="checkbox" id="towerEvent"><label for="isHaken">摩天楼
+</label></li>
+    </ul>
     </form>
   </body>
     <script src="popup.js"></script>

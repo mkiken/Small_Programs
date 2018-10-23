@@ -55,7 +55,7 @@ const SEQUENCES = [
     methodName: 'attackRaidDeathblow',
     wait: 3,
     beforeFilter: function () {
-      return ! isIdolEvent && ! isTowerEvent;
+      return isMafiaEvent;
     },
   },
   {
@@ -162,7 +162,7 @@ const SEQUENCES = [
     methodName: 'attackRaidDeathblow',
     wait: 3,
     beforeFilter: function () {
-      return ! isIdolEvent && ! isTowerEvent;
+      return isMafiaEvent;
     },
   },
   {
@@ -205,7 +205,7 @@ const SEQUENCES = [
     methodName: 'goQuestHakenTab',
     wait: 2,
     beforeFilter: function () {
-      return ! isIdolEvent;
+      return (!isIdolEvent) && isHaken;
     },
   },
   {
@@ -213,7 +213,7 @@ const SEQUENCES = [
     methodName: 'questExec',
     wait: 2,
     beforeFilter: function () {
-      return ! isIdolEvent;
+      return (!isIdolEvent) && isHaken;
     },
   },
   {
@@ -224,7 +224,7 @@ const SEQUENCES = [
       skipSteps: 3
     },
     beforeFilter: function () {
-      return ! isIdolEvent;
+      return (!isIdolEvent) && isHaken;
     },
   },
   // 覇圏が駄目な時のため期間限定タブに行ってみる
@@ -249,6 +249,9 @@ const SEQUENCES = [
     description: 'send ap recover request',
     methodName: 'sendApRecoverRequest',
     wait: 2,
+    beforeFilter: function () {
+      return isMafiaEvent;
+    },
   },
   // AP回復ボタン
   {
@@ -519,6 +522,22 @@ const OPTION_METHODS = {
     sendResponse(response);
 
     return true;
+  },
+  setMafiaEvent: function (request, sender, sendResponse) {
+    isMafiaEvent = request.isEnabled;
+
+    let response = {msg: `setMafiaEvent done.: {${JSON.stringify(request)}}`};
+    sendResponse(response);
+
+    return true;
+  },
+  setIsHaken: function (request, sender, sendResponse) {
+    isHaken = request.isEnabled;
+
+    let response = {msg: `setIsHaken done.: {${JSON.stringify(request)}}`};
+    sendResponse(response);
+
+    return true;
   }
 };
 
@@ -527,12 +546,16 @@ const STORAGE_KEYS = {
   raidGacha: 'raidGacha',
   idolEvent: 'idolEvent',
   towerEvent: 'towerEvent',
+  MafiaEvent: 'MafiaEvent',
+  isHaken: 'isHaken',
 };
 
 var isRunning = false;
 var isDrawRaidGacha = false;
 var isIdolEvent = false;
 var isTowerEvent = false;
+var isMafiaEvent = false;
+var isHaken = false;
 
 
 function stop() {
@@ -661,6 +684,12 @@ window.onload = function () {
   });
   chrome.storage.sync.get(STORAGE_KEYS.towerEvent, function(data) {
     isTowerEvent = data[STORAGE_KEYS.towerEvent] ? true : false;
+  });
+  chrome.storage.sync.get(STORAGE_KEYS.mafiaEvent, function(data) {
+    isMafiaEvent = data[STORAGE_KEYS.mafiaEvent] ? true : false;
+  });
+  chrome.storage.sync.get(STORAGE_KEYS.isHaken, function(data) {
+    isHaken = data[STORAGE_KEYS.isHaken] ? true : false;
   });
 
   // はじめは無効にする
