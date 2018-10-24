@@ -186,7 +186,7 @@ const OPTION_SETTINGS = {
     },
     onClick: function () {
       let isChecked = this.checked;
-      chrome.storage.sync.set({[OPTION_SETTINGS.isHaken.storageKey]: isChecked}, function() {
+      chrome.storage.sync.set({[OPTION_SETTINGS.mafiaEvent.storageKey]: isChecked}, function() {
         console.log("is_checked is " + isChecked);
         chrome.runtime.sendMessage({
           methodName: 'setMafiaEvent',
