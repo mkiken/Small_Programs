@@ -122,9 +122,17 @@ const METHODS = {
     battleGrow: function (responseCallback) {
       clickElement('a[href*="' + convertUrl('grow/battle_flash') + '"]', responseCallback);
     },
-    // AP回復リクエスト
+    // AP回復リクエスト送信
     sendApRecoverRequest: function (responseCallback) {
       clickElement('div#quest img[src*="' + convertUrl('mafia/button/req_send.png') + '"]', responseCallback);
+    },
+    // AP回復リクエスト一覧
+    apRecoverRequestList: function (responseCallback) {
+        clickElement('a[href*="' + convertUrl('mafia/ap_support_list') + '"]', responseCallback);
+    },
+    // AP回復リクエスト受信
+    acceptApRecoverRequest: function (responseCallback) {
+        clickElement('a[href*="' + convertUrl('mafia/accept_ap_support') + '"]', responseCallback);
     },
     // AP回復ボタン
     recoverAp: function (responseCallback) {

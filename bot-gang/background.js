@@ -199,6 +199,24 @@ const SEQUENCES = [
     methodName: 'questItemChallenge',
     wait: 6,
   },
+  // AP回復リクエスト一覧
+  {
+    description: 'ap recover request list.',
+    methodName: 'apRecoverRequestList',
+    wait: 2,
+    beforeFilter: function () {
+      return isMafiaEvent;
+    },
+  },
+  // AP回復リクエスト受信
+  {
+    description: 'accept ap recover request',
+    methodName: 'acceptApRecoverRequest',
+    wait: 2,
+    beforeFilter: function () {
+      return isMafiaEvent;
+    },
+  },
   // 覇圏タブに行ってみる
   {
     description: 'go haken tab.',
