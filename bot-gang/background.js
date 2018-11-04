@@ -526,6 +526,19 @@ const SEQUENCES = [
       return isArena;
     }
   },
+  // 奥義を発動
+  {
+    description: 'Execute Job',
+    methodName: 'executeJob',
+    wait: 2,
+    fail: {
+      resetStep: true,
+    },
+    beforeFilter: function () {
+      return isArena;
+    }
+  },
+
 
 ];
 

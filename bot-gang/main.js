@@ -179,6 +179,18 @@ const METHODS = {
     goArena: function (responseCallback) {
       clickElement('div a[href*="' + convertUrl('arena/battle') + '"]', responseCallback);
     },
+    executeJob: function (responseCallback) {
+      let element = getElement('div#burst-command form div select[name="skill_val"]');
+      if (element){
+        element.value = "job_3";
+        responseCallback();
+      }
+      else{
+        responseCallback({
+          result: false
+        });
+      }
+    },
 };
 
 function clickNews(href, callback)
