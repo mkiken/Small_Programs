@@ -173,6 +173,12 @@ const METHODS = {
     towerBattleExec: function (responseCallback) {
       clickElement('div a[href*="' + convertUrl('tower/battle_exec') + '"]', responseCallback);
     },
+    goActiveArena: function (responseCallback) {
+      clickElement('div.active a[href*="' + convertUrl('arena') + '"]', responseCallback);
+    },
+    goArena: function (responseCallback) {
+      clickElement('div a[href*="' + convertUrl('arena/battle') + '"]', responseCallback);
+    },
 };
 
 function clickNews(href, callback)

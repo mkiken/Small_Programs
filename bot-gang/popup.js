@@ -202,6 +202,39 @@ const OPTION_SETTINGS = {
       this.dom.addEventListener('click', this.onClick);
     }
   },
+
+  // 抗争関連の処理
+  isArena: {
+    domId: 'isArena',
+    storageKey: 'isArena',
+    dom: null,
+    setDom: function () {
+      this.dom = document.getElementById(this.domId);
+    },
+    setOption: function () {
+      let that = this;
+      chrome.storage.sync.get(that.storageKey, function(data) {
+        that.dom.checked = data[that.storageKey] ? true : false;
+      });
+    },
+    onClick: function () {
+      let isChecked = this.checked;
+      chrome.storage.sync.set({[OPTION_SETTINGS.isArena.storageKey]: isChecked}, function() {
+        console.log("is_checked is " + isChecked);
+        chrome.runtime.sendMessage({
+          methodName: 'setIsArena',
+          isEnabled: isChecked,
+        },
+        function(response) {
+          console.log(response);
+        });
+      });
+    },
+    setEventListener: function () {
+      console.log(this);
+      this.dom.addEventListener('click', this.onClick);
+    }
+  },
 };
 
 window.onload = function () {

@@ -502,6 +502,31 @@ const SEQUENCES = [
       resetStep: true,
     }
   },
+  // 抗争参戦を試みる
+  {
+    description: 'go active arena',
+    methodName: 'goActiveArena',
+    wait: 2,
+    fail: {
+      resetStep: true,
+    },
+    beforeFilter: function () {
+      return isArena;
+    }
+  },
+  // 抗争ページに行く
+  {
+    description: 'go arena',
+    methodName: 'goArena',
+    wait: 2,
+    fail: {
+      resetStep: true,
+    },
+    beforeFilter: function () {
+      return isArena;
+    }
+  },
+
 ];
 
 const OPTION_METHODS = {
@@ -556,6 +581,14 @@ const OPTION_METHODS = {
     sendResponse(response);
 
     return true;
+  },
+  setIsArena: function (request, sender, sendResponse) {
+    isArena = request.isEnabled;
+
+    let response = {msg: `setIsArena done.: {${JSON.stringify(request)}}`};
+    sendResponse(response);
+
+    return true;
   }
 };
 
@@ -566,6 +599,7 @@ const STORAGE_KEYS = {
   towerEvent: 'towerEvent',
   MafiaEvent: 'MafiaEvent',
   isHaken: 'isHaken',
+  isArena: 'isArena',
 };
 
 var isRunning = false;
@@ -574,6 +608,7 @@ var isIdolEvent = false;
 var isTowerEvent = false;
 var isMafiaEvent = false;
 var isHaken = false;
+var isArena = false;
 
 
 function stop() {
@@ -613,6 +648,7 @@ function execSequence(index, tabId) {
   if (typeof sequence.beforeFilter !== 'undefined') {
     // スキップ
     if ( ! sequence.beforeFilter()) {
+      info("skip this step by before filter.");
       execSequence(index + 1, tabId);
       return;
     }
@@ -643,6 +679,7 @@ function execSequence(index, tabId) {
       if (nextAction) {
         // 処理をスキップ
         if (typeof nextAction.skipSteps != 'undefined') {
+          info("skip steps [" + nextAction.skipSteps + "].");
           nextIndex += nextAction.skipSteps;
         }
         // 処理をはじめに戻す
@@ -650,6 +687,7 @@ function execSequence(index, tabId) {
           typeof nextAction.resetStep != 'undefined'
           && nextAction.resetStep
         ) {
+          info("reset steps.");
           nextIndex = 0;
         }
       }
@@ -708,6 +746,9 @@ window.onload = function () {
   });
   chrome.storage.sync.get(STORAGE_KEYS.isHaken, function(data) {
     isHaken = data[STORAGE_KEYS.isHaken] ? true : false;
+  });
+  chrome.storage.sync.get(STORAGE_KEYS.isArena, function(data) {
+    isArena = data[STORAGE_KEYS.isArena] ? true : false;
   });
 
   // はじめは無効にする
