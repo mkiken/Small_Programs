@@ -158,8 +158,8 @@ const METHODS = {
       clickElement('div a[href*="' + convertUrl('tower/select_tower') + '"]', responseCallback);
     },
     selectTower: function (responseCallback) {
-      // NOTE: 絶対勝てる初めの塔を選んでいる
-      clickElement('div a[href*="' + convertUrl('tower/current_set/1') + '"]', responseCallback);
+      // NOTE: 絶対勝てる塔を選んでいる
+      clickElement('div a[href*="' + convertUrl('tower/current_set/1/2') + '"]', responseCallback);
     },
     goTowerEnemyList: function (responseCallback) {
       clickElement('div a[href*="' + convertUrl('tower/enemy_list') + '"]', responseCallback);
