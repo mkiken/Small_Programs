@@ -180,16 +180,21 @@ const METHODS = {
       clickElement('div a[href*="' + convertUrl('arena/battle') + '"]', responseCallback);
     },
     executeJob: function (responseCallback) {
-      let element = getElement('div#burst-command form div select[name="skill_val"]');
-      if (element){
-        element.value = "job_3";
-        responseCallback();
+      let formElement = getElement('form[action*=job_skill_exec] select');
+      if (formElement){
+        let jobs = ['job_5', 'job_6'];
+        for (let i = 0; i < jobs.length; i++) {
+          if (existElement("form[action*=job_skill_exec] select option[value=" + jobs[i] + "]")){
+            formElement.value = jobs[i];
+            clickElement("form[action*=job_skill_exec] input[type=submit]", responseCallback);
+            return;
+          }
+        }
       }
-      else{
-        responseCallback({
-          result: false
-        });
-      }
+
+      responseCallback({
+        result: false
+      });
     },
 };
 
@@ -234,12 +239,17 @@ function clickElement(selector, successCallback, failCallback = null) {
    }
 }
 
-function getElement(selector) {
+function getElement(selector, isLog = true) {
   let result = document.querySelector(selector);
-  if (!result) {
+  if (!result && isLog) {
     warn(selector + " element not found.");
   }
   return result;
+}
+
+function existElement(selector){
+  let e = getElement(selector, false);
+  return Boolean(e);
 }
 
 function getBaseUrl(){
