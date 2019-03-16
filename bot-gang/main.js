@@ -182,7 +182,7 @@ const METHODS = {
     executeJob: function (responseCallback) {
       let formElement = getElement('form[action*=job_skill_exec] select');
       if (formElement){
-        let jobs = ['job_5', 'job_6'];
+        let jobs = ['job_14', 'job_15'];
         for (let i = 0; i < jobs.length; i++) {
           if (existElement("form[action*=job_skill_exec] select option[value=" + jobs[i] + "]")){
             formElement.value = jobs[i];
