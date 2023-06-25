@@ -29,8 +29,14 @@ driver.find_element(By.ID, 'password_form').send_keys(d['password'])
 login_button = wait.until(EC.element_to_be_clickable((By.ID, 'login_btn')))
 login_button.click()
 
+while True:
+    time.sleep(3)
+    if driver.title == "Sorry Page" or "ただいまアクセスが集中し、つながりにくい状態です。" in driver.find_element(
+            "body > section.main > section.unit.unit_warning > p.fc_red").text == "":
+        driver.refresh()
+
 # 2時間終了を待つ
-time.sleep(7200)
+# time.sleep(7200)
 
 # クロームの終了処理
-driver.close()
+# driver.close()
