@@ -20,15 +20,29 @@ def is_access_failed(driver) -> bool:
 
     return False
 
+# アクセスが失敗してたらreloadしなおす
+def reload_until_load_success(driver) -> bool:
+    while True:
+        time.sleep(5)
+        now = datetime.datetime.now()
+        if is_access_failed(driver):
+            print("reload: %s", now)
+            driver.refresh()
+        else:
+            break
 
 # クロームの立ち上げ
 driver = webdriver.Chrome()
 wait = WebDriverWait(driver, 15)
 
+# 宝塚友の会 先行販売
 # ページ接続
 driver.get(
-    'https://www.takarazuka-ticket.com/mp/twjlg.do?md=1&ls=2&ul=https://www.takarazuka-ticket.com/rt/twjkl.do')
+    'https://www2.takarazuka-ticket.com/st/twjkl.do')
 
+reload_until_load_success(driver)
+
+print("attempt to login.")
 # ログインフォーム
 login_id_form = wait.until(EC.element_to_be_clickable((By.ID, 'loginid_form')))
 
@@ -40,19 +54,14 @@ driver.find_element(By.ID, 'password_form').send_keys(d['password'])
 
 login_button = wait.until(EC.element_to_be_clickable((By.ID, 'login_btn')))
 login_button.click()
+print("login button clicked. load...")
 
-# アクセスが失敗してたらreloadしなおす
-while True:
-    time.sleep(5)
-    now = datetime.datetime.now()
-    if is_access_failed(driver):
-        print("reload: %s", now)
-        driver.refresh()
-    else:
-        print("not reload: %s", now)
+reload_until_load_success(driver)
+
+print("load success! wait 7200 sec.")
 
 # 2時間終了を待つ
-# time.sleep(7200)
+time.sleep(7200)
 
 # クロームの終了処理
-# driver.close()
+driver.close()
