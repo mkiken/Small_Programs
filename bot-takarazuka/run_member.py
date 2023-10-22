@@ -22,11 +22,13 @@ def is_access_failed(driver) -> bool:
 
 # アクセスが失敗してたらreloadしなおす
 def reload_until_load_success(driver) -> bool:
+    count = 0
     while True:
+        count += 1
         time.sleep(5)
         now = datetime.datetime.now()
         if is_access_failed(driver):
-            print("reload: %s", now)
+            print("reload %d: %s", count, now)
             driver.refresh()
         else:
             break
