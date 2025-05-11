@@ -4,8 +4,17 @@ tell application "Google Chrome"
 	activate
 	set theTab to active tab of front window
 
-	-- 「¥0+」の期日を取得
-	set noticeText to (execute theTab javascript "document.querySelector('.PCM-productNoticeList_notice').textContent.trim()") as text
+	-- 「¥0+」の期日を取得（複数要素対応）
+	set noticeText to (execute theTab javascript "
+		(function() {
+			const nodes = document.querySelectorAll('.PCM-productNoticeList_notice');
+			for (let i = 0; i < nodes.length; i++) {
+				const txt = nodes[i].textContent.trim();
+				if (txt.includes('¥0+')) return txt;
+			}
+			return '';
+		})()
+	") as text
 	-- タイトルを取得
 	set productTitle to (execute theTab javascript "document.querySelector('.PCM-productTitle').textContent.trim()") as text
 
