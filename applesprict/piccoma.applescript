@@ -2,6 +2,7 @@
 
 set noticeTextList to {}
 set productTitleList to {}
+set alertMessages to {}
 
 tell application "Google Chrome"
 	activate
@@ -52,6 +53,19 @@ repeat with i from 1 to (count of noticeTextList)
 			end tell
 		end tell
 
-		display alert "リマインダー登録完了" message "リマインダー登録完了: " & productTitle & "(" & dueDate & ")"
+		-- メッセージを配列に追加
+		set end of alertMessages to (productTitle & " (" & dueDate & ")")
 	end if
 end repeat
+
+if (count of alertMessages) > 0 then
+	set alertText to "リマインダー登録完了:\n" & (my joinList(alertMessages, "\n"))
+	display alert "リマインダー登録完了" message alertText
+end if
+
+on joinList(theList, delimiter)
+	set {oldDelims, AppleScript's text item delimiters} to {AppleScript's text item delimiters, delimiter}
+	set joined to theList as text
+	set AppleScript's text item delimiters to oldDelims
+	return joined
+end joinList
