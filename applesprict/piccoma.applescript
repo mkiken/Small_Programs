@@ -1,5 +1,7 @@
 -- ピッコマの漫画詳細ページをすべてのタブから探し、タイトルと「¥0+」の期限をリストに格納し、後でリマインダー「漫画」に追加する
 
+set startTime to (current date)
+
 set noticeTextList to {}
 set productTitleList to {}
 set alertMessages to {}
@@ -87,11 +89,14 @@ repeat with i from 1 to (count of noticeTextList)
 	end if
 end repeat
 
+set endTime to (current date)
+set elapsedSeconds to (endTime - startTime) as integer
+
 if (count of alertMessages) > 0 then
-	set alertText to "リマインダー登録完了:\n" & (my joinList(alertMessages, "\n"))
+	set alertText to "リマインダー登録完了:\n" & (my joinList(alertMessages, "\n")) & "\n\n実行時間: " & elapsedSeconds & "秒"
 	display alert "リマインダー登録完了" message alertText
 else
-	display alert "リマインダー登録完了" message "新規登録・更新されたリマインダーはありませんでした。"
+	display alert "リマインダー登録完了" message "新規登録・更新されたリマインダーはありませんでした。\n\n実行時間: " & elapsedSeconds & "秒"
 end if
 
 on joinList(theList, delimiter)
