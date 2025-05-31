@@ -35,6 +35,14 @@ tell application "Google Chrome"
 	end repeat
 end tell
 
+-- 既存リマインダーを一度だけ取得
+set existingReminders to {}
+tell application "Reminders"
+	tell list "漫画"
+		set existingReminders to get reminders
+	end tell
+end tell
+
 -- 配列を使ってリマインダー作成
 repeat with i from 1 to (count of noticeTextList)
 	set noticeText to item i of noticeTextList
@@ -46,21 +54,44 @@ repeat with i from 1 to (count of noticeTextList)
 	if dateString is not "" then
 		set dueDate to date dateString
 
-		-- リマインダー作成
+		-- 既存リマインダーをリストから検索
+		set existingReminder to missing value
+		repeat with r in existingReminders
+			if name of r is equal to productTitle then
+				set existingReminder to r
+				exit repeat
+			end if
+		end repeat
+
 		tell application "Reminders"
-			tell list "漫画" -- デフォルトリスト名（必要に応じて変更）
-				make new reminder with properties {name:productTitle, due date:dueDate}
+			tell list "漫画"
+				if existingReminder is not missing value then
+					if completed of existingReminder is true then
+						-- 完了済みなら新規作成
+						make new reminder with properties {name:productTitle, due date:dueDate}
+						set end of alertMessages to (productTitle & " (" & dueDate & ")")
+					else
+						if due date of existingReminder is not dueDate then
+							-- 未完了かつ日付が違う場合のみ更新
+							set due date of existingReminder to dueDate
+							set end of alertMessages to (productTitle & " (" & dueDate & ")")
+						end if
+						-- 何も処理しない場合はalertMessagesに追加しない
+					end if
+				else
+					make new reminder with properties {name:productTitle, due date:dueDate}
+					set end of alertMessages to (productTitle & " (" & dueDate & ")")
+				end if
 			end tell
 		end tell
-
-		-- メッセージを配列に追加
-		set end of alertMessages to (productTitle & " (" & dueDate & ")")
 	end if
 end repeat
 
 if (count of alertMessages) > 0 then
 	set alertText to "リマインダー登録完了:\n" & (my joinList(alertMessages, "\n"))
 	display alert "リマインダー登録完了" message alertText
+else
+	display alert "リマインダー登録完了" message "新規登録・更新されたリマインダーはありませんでした。"
 end if
 
 on joinList(theList, delimiter)
