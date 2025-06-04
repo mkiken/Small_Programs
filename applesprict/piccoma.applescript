@@ -37,14 +37,6 @@ tell application "Google Chrome"
 	end repeat
 end tell
 
--- 既存リマインダーを一度だけ取得
-set existingReminders to {}
-tell application "Reminders"
-	tell list "漫画"
-		set existingReminders to get reminders whose completed is false
-	end tell
-end tell
-
 -- 配列を使ってリマインダー作成
 repeat with i from 1 to (count of noticeTextList)
 	set noticeText to item i of noticeTextList
@@ -56,24 +48,20 @@ repeat with i from 1 to (count of noticeTextList)
 	if dateString is not "" then
 		set dueDate to date dateString
 
-		-- 既存リマインダーをリストから検索
+		-- ここでproductTitleで1件だけリマインダーを取得
 		set existingReminder to missing value
 		tell application "Reminders"
 			tell list "漫画"
-				repeat with r in existingReminders
-					if name of r is equal to productTitle then
-						set existingReminder to r
-						exit repeat
-					end if
-				end repeat
+				set foundReminders to (get reminders whose name is productTitle and completed is false)
+				if (count of foundReminders) > 0 then
+					set existingReminder to item 1 of foundReminders
+				end if
 
 				if existingReminder is not missing value then
-						if due date of existingReminder is not dueDate then
-							-- 未完了かつ日付が違う場合のみ更新
-							set due date of existingReminder to dueDate
-							set end of alertMessages to (productTitle & " (" & dueDate & ")")
-						end if
-						-- 何も処理しない場合はalertMessagesに追加しない
+					if due date of existingReminder is not dueDate then
+						set due date of existingReminder to dueDate
+						set end of alertMessages to (productTitle & " (" & dueDate & ")")
+					end if
 				else
 					make new reminder with properties {name:productTitle, due date:dueDate}
 					set end of alertMessages to (productTitle & " (" & dueDate & ")")
