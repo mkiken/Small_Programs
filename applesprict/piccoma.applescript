@@ -41,7 +41,7 @@ end tell
 set existingReminders to {}
 tell application "Reminders"
 	tell list "漫画"
-		set existingReminders to get reminders
+		set existingReminders to get reminders whose completed is false
 	end tell
 end tell
 
@@ -68,18 +68,12 @@ repeat with i from 1 to (count of noticeTextList)
 		tell application "Reminders"
 			tell list "漫画"
 				if existingReminder is not missing value then
-					if completed of existingReminder is true then
-						-- 完了済みなら新規作成
-						make new reminder with properties {name:productTitle, due date:dueDate}
-						set end of alertMessages to (productTitle & " (" & dueDate & ")")
-					else
 						if due date of existingReminder is not dueDate then
 							-- 未完了かつ日付が違う場合のみ更新
 							set due date of existingReminder to dueDate
 							set end of alertMessages to (productTitle & " (" & dueDate & ")")
 						end if
 						-- 何も処理しない場合はalertMessagesに追加しない
-					end if
 				else
 					make new reminder with properties {name:productTitle, due date:dueDate}
 					set end of alertMessages to (productTitle & " (" & dueDate & ")")
