@@ -58,15 +58,15 @@ repeat with i from 1 to (count of noticeTextList)
 
 		-- 既存リマインダーをリストから検索
 		set existingReminder to missing value
-		repeat with r in existingReminders
-			if name of r is equal to productTitle then
-				set existingReminder to r
-				exit repeat
-			end if
-		end repeat
-
 		tell application "Reminders"
 			tell list "漫画"
+				repeat with r in existingReminders
+					if name of r is equal to productTitle then
+						set existingReminder to r
+						exit repeat
+					end if
+				end repeat
+
 				if existingReminder is not missing value then
 						if due date of existingReminder is not dueDate then
 							-- 未完了かつ日付が違う場合のみ更新
