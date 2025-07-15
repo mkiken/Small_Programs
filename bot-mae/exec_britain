@@ -1,3 +1,0 @@
-#!/usr/bin/env ruby
-require_relative './britain/mae_britain_run'
-Mae_britain_run.main

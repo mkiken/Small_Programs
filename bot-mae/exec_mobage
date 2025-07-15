@@ -1,3 +1,0 @@
-#!/usr/bin/env ruby
-require_relative './mobage/mae_mobage_run'
-Mae_mobage_run.main
