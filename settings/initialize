@@ -1,0 +1,2 @@
+mkdir -p ../.git/hooks
+cp -i git/hooks/commit-msg ../.git/hooks

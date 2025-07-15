@@ -1,5 +1,13 @@
 Small_Programs
 ==============
+
+## 初期設定
+リポジトリをクローンした後、以下の手順で初期設定を行ってください：
+
+```bash
+cd settings/git
+./initialize
+```
 ***
 ### SortSafari [Java]
  program for sorting bookmark of Safari.
