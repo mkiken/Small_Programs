@@ -20,7 +20,7 @@ tell application "Google Chrome"
 			-- 「¥0+」の期日を取得
 			set noticeText to (execute theTab javascript "
 				(function() {
-					const nodes = document.querySelectorAll('.PCM-productNoticeList_notice');
+					const nodes = document.querySelectorAll('.PCM-productNoticeList_notice, .PCM-productNoticeList_campaign');
 					for (let i = 0; i < nodes.length; i++) {
 						const txt = nodes[i].textContent.trim();
 						if (txt.includes('¥0+')) return txt;
@@ -39,14 +39,34 @@ tell application "Google Chrome"
 end tell
 
 -- 配列を使ってリマインダー作成
+set skippedList to {}
+
 repeat with i from 1 to (count of noticeTextList)
 	set noticeText to item i of noticeTextList
 	set productTitle to item i of productTitleList
 
-	-- 日付部分のみ抽出
-	set dateString to do shell script "echo " & quoted form of noticeText & " | sed -E 's/.*([0-9]{4}\\/[0-9]{1,2}\\/[0-9]{1,2}).*([0-9]{2}:[0-9]{2})/\\1 \\2/'"
+	-- 日付部分のみ抽出（複数パターン対応）
+	set dateString to do shell script "
+text=" & quoted form of noticeText & "
 
-	if dateString is not "" then
+# パターン1: YYYY/MM/DD HH:MM
+if echo \"$text\" | grep -qE '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}.*[0-9]{2}:[0-9]{2}'; then
+    echo \"$text\" | sed -E 's/.*([0-9]{4})\\/([0-9]{1,2})\\/([0-9]{1,2}).*([0-9]{2}:[0-9]{2}).*/\\1\\/\\2\\/\\3 \\4/'
+    exit 0
+fi
+
+# パターン2: M/D(曜日)HH:MM（年なし → 現在年を補完）
+if echo \"$text\" | grep -qE '[0-9]{1,2}/[0-9]{1,2}\\([^)]+\\)[0-9]{2}:[0-9]{2}'; then
+    year=$(date +%Y)
+    echo \"$text\" | sed -E \"s/.*([0-9]{1,2})\\/([0-9]{1,2})\\([^)]+\\)([0-9]{2}:[0-9]{2}).*/$year\\/\\1\\/\\2 \\3/\"
+    exit 0
+fi
+
+# どちらにもマッチしない場合は空文字
+echo ''
+"
+
+	if dateString is not "" and dateString does not contain "¥0+" then
 		set dueDate to date dateString
 
 		-- ここでproductTitleで1件だけリマインダーを取得
@@ -69,18 +89,31 @@ repeat with i from 1 to (count of noticeTextList)
 				end if
 			end tell
 		end tell
+	else
+		set end of skippedList to (productTitle & " (" & noticeText & ")")
 	end if
 end repeat
 
 set endTime to (current date)
 set elapsedSeconds to (endTime - startTime) as integer
 
+set alertText to ""
+
 if (count of alertMessages) > 0 then
-	set alertText to "リマインダー登録完了:\n" & (my joinList(alertMessages, "\n")) & "\n\n実行時間: " & elapsedSeconds & "秒"
-	display alert "リマインダー登録完了" message alertText
-else
-	display alert "リマインダー登録完了" message "新規登録・更新されたリマインダーはありませんでした。\n\n実行時間: " & elapsedSeconds & "秒"
+	set alertText to "登録/更新:\n" & (my joinList(alertMessages, "\n"))
 end if
+
+if (count of skippedList) > 0 then
+	if alertText is not "" then set alertText to alertText & "\n\n"
+	set alertText to alertText & "⚠️ 日付抽出失敗（スキップ）:\n" & (my joinList(skippedList, "\n"))
+end if
+
+if alertText is "" then
+	set alertText to "新規登録・更新されたリマインダーはありませんでした。"
+end if
+
+set alertText to alertText & "\n\n実行時間: " & elapsedSeconds & "秒"
+display alert "リマインダー処理完了" message alertText
 
 on joinList(theList, delimiter)
 	set {oldDelims, AppleScript's text item delimiters} to {AppleScript's text item delimiters, delimiter}
