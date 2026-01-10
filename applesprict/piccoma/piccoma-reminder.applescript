@@ -45,9 +45,10 @@ repeat with i from 1 to (count of noticeTextList)
 	set noticeText to item i of noticeTextList
 	set productTitle to item i of productTitleList
 
-	-- 日付部分のみ抽出（複数パターン対応）
+	-- Base64エンコードして安全にシェルへ渡す
+	set encodedText to do shell script "printf '%s' " & quoted form of noticeText & " | base64"
 	set dateString to do shell script "
-text=" & quoted form of noticeText & "
+text=$(printf '%s' " & quoted form of encodedText & " | base64 -d)
 
 # パターン1: YYYY/MM/DD(曜日)HH:MM または YYYY/MM/DD HH:MM
 if printf '%s' \"$text\" | grep -qE '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}'; then
