@@ -1,7 +1,16 @@
 -- ピッコマの「¥0+」の漫画詳細ページをN件開く
 -- Chromeなどからサービスで呼んだり、osascriptコマンドで呼んだりとサービス経由だととても重いので、automatorからアプリケーションとして起動するとよい
 
-set startTime to (current date)
+on run argv
+	-- フラグ解析
+	set showAlert to true
+	repeat with arg in argv
+		if (contents of arg) is "--silent" or (contents of arg) is "-s" then
+			set showAlert to false
+		end if
+	end repeat
+
+	set startTime to (current date)
 
 tell application "Google Chrome"
 	activate
@@ -43,7 +52,10 @@ tell application "Google Chrome"
 	end tell
 end tell
 
-set endTime to (current date)
-set elapsedSeconds to (endTime - startTime) as integer
+	set endTime to (current date)
+	set elapsedSeconds to (endTime - startTime) as integer
 
-display alert "オープン完了" message "実行時間: " & elapsedSeconds & "秒"
+	if showAlert then
+		display alert "オープン完了" message "実行時間: " & elapsedSeconds & "秒"
+	end if
+end run
