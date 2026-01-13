@@ -4,11 +4,34 @@
 on run argv
 	-- フラグ解析
 	set showAlert to true
-	repeat with arg in argv
-		if (contents of arg) is "--silent" or (contents of arg) is "-s" then
+	set pageCount to 5 -- デフォルト値
+
+	set i to 1
+	repeat while i <= (count of argv)
+		set arg to item i of argv
+		if arg is "--silent" or arg is "-s" then
 			set showAlert to false
+		else if arg is "--count" or arg is "-c" then
+			if i + 1 <= (count of argv) then
+				try
+					set pageCount to (item (i + 1) of argv as integer)
+					if pageCount < 1 then
+						display dialog "ページ数には1以上の数値を指定してください。" with icon stop with title "引数エラー"
+						error number -128
+					end if
+					set i to i + 1
+				on error
+					display dialog "ページ数には数値を指定してください。" with icon stop with title "引数エラー"
+					error number -128
+				end try
+			else
+				display dialog "--countフラグにはページ数を指定してください。" with icon stop with title "引数エラー"
+				error number -128
+			end if
 		end if
+		set i to i + 1
 	end repeat
+
 
 	set startTime to (current date)
 
@@ -29,7 +52,7 @@ tell application "Google Chrome"
                        (function() {
                                const links = [];
                                const badges = document.querySelectorAll('.PCOM-prdList_badge_freeplus');
-                               for (let i = 0; i < Math.min(badges.length, 5); i++) {
+                               for (let i = 0; i < Math.min(badges.length, " & pageCount & "); i++) {
                                        const badge = badges[i];
                                        const link = badge.closest('a');
                                        if (link && link.href) {
