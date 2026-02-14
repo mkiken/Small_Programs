@@ -21,11 +21,13 @@ tell application "Google Chrome"
 			set noticeText to (execute theTab javascript "
 				(function() {
 					const nodes = document.querySelectorAll('.PCM-productNoticeList_notice, .PCM-productNoticeList_campaign');
+					let fallback = '';
 					for (let i = 0; i < nodes.length; i++) {
 						const txt = nodes[i].textContent.trim();
-						if (txt.includes('¥0+')) return txt;
+						if (txt.includes('「¥0+」は')) return txt;
+						if (!fallback && txt.includes('¥0+')) fallback = txt;
 					}
-					return '';
+					return fallback;
 				})()
 			") as text
 			-- タイトルを取得
