@@ -1,11 +1,13 @@
--- ピッコマの漫画詳細ページをすべてのタブから探し、タイトルと「¥0+」の期限をリストに格納し、後でリマインダー「漫画」に追加する
+-- ピッコマの漫画詳細ページをすべてのタブから探し、タイトルと「¥0+」「爆読み¥0」の期限をリストに格納し、後でリマインダー「漫画」に追加する
 -- Chromeなどからサービスで呼んだり、osascriptコマンドで呼んだりとサービス経由だととても重いので、automatorからアプリケーションとして起動するとよい
 
 set startTime to (current date)
 
 set noticeTextList to {}
 set productTitleList to {}
+set productTypeList to {}
 set alertMessages to {}
+set bingeFreePrefix to "【爆読み¥0】"
 
 tell application "Google Chrome"
 	activate
@@ -17,15 +19,35 @@ tell application "Google Chrome"
 		set theTab to item i of theTabs
 		set theURL to URL of theTab
 		if theURL contains "https://piccoma.com/web/product" then
-			-- 「¥0+」の期日を取得
+			-- 作品概要エリアのバッジから対象種別を判定
+			set productType to (execute theTab javascript "
+				(function() {
+					const summary = document.querySelector('.PCM-l_productSummary1, .PCM-productSummary1');
+					const noticeText = Array.from(document.querySelectorAll('.PCM-productNoticeList_notice, .PCM-productNoticeList_campaign'))
+						.map((node) => node.textContent.trim())
+						.join(' ');
+					if (summary && summary.querySelector('.PCOM-prdList_badge_bingefree')) return 'bingefree';
+					if (summary && summary.querySelector('.PCOM-prdList_badge_freeplus')) return 'freeplus';
+					if (noticeText.includes('爆読み¥0') || noticeText.includes('爆読み￥0')) return 'bingefree';
+					if (noticeText.includes('「¥0+」は') || noticeText.includes('¥0+') || noticeText.includes('￥0+')) return 'freeplus';
+					return '';
+				})()
+			") as text
+
+			-- 対象種別に応じた期日テキストを取得
 			set noticeText to (execute theTab javascript "
 				(function() {
+					const productType = '" & productType & "';
 					const nodes = document.querySelectorAll('.PCM-productNoticeList_notice, .PCM-productNoticeList_campaign');
 					let fallback = '';
 					for (let i = 0; i < nodes.length; i++) {
 						const txt = nodes[i].textContent.trim();
-						if (txt.includes('「¥0+」は')) return txt;
-						if (!fallback && txt.includes('¥0+')) fallback = txt;
+						if (productType === 'bingefree') {
+							if (txt.includes('爆読み')) return txt;
+						} else {
+							if (txt.includes('「¥0+」は')) return txt;
+							if (!fallback && (txt.includes('¥0+') || txt.includes('￥0+'))) fallback = txt;
+						}
 					}
 					return fallback;
 				})()
@@ -36,49 +58,94 @@ tell application "Google Chrome"
 			-- 配列に追加
 			set end of noticeTextList to noticeText
 			set end of productTitleList to productTitle
+			set end of productTypeList to productType
 		end if
 	end repeat
 end tell
 
 -- 配列を使ってリマインダー作成
 set skippedList to {}
+set scriptFolder to (do shell script "dirname " & quoted form of POSIX path of (path to me))
 
 repeat with i from 1 to (count of noticeTextList)
 	set noticeText to item i of noticeTextList
 	set productTitle to item i of productTitleList
+	set productType to item i of productTypeList
 
-	-- Base64エンコードして安全にシェルへ渡す
-	set encodedText to do shell script "printf '%s' " & quoted form of noticeText & " | base64"
+	if productType is "freeplus" or productType is "bingefree" then
+		-- Base64エンコードして安全にシェルへ渡す
+		set encodedText to do shell script "printf '%s' " & quoted form of noticeText & " | base64"
 
-	-- スクリプトのパスを取得（AppleScriptと同じディレクトリ）
-	set scriptFolder to (do shell script "dirname " & quoted form of POSIX path of (path to me))
-	set dateString to do shell script scriptFolder & "/extract-date.sh " & quoted form of encodedText
+		set dateString to do shell script scriptFolder & "/extract-date.sh " & quoted form of encodedText
+		set hasDueDate to false
+		if dateString is not "" and dateString does not contain "¥0" and dateString does not contain "￥0" then
+			set hasDueDate to true
+			set dueDate to date dateString
+		end if
 
-	if dateString is not "" and dateString does not contain "¥0+" then
-		set dueDate to date dateString
+		if productType is "freeplus" and hasDueDate is false then
+			set end of skippedList to (productTitle & " (" & noticeText & ")")
+		else
+			set reminderName to productTitle
+			set alternateReminderName to bingeFreePrefix & productTitle
+			if productType is "bingefree" then
+				set reminderName to bingeFreePrefix & productTitle
+				set alternateReminderName to productTitle
+			end if
 
-		-- ここでproductTitleで1件だけリマインダーを取得
-		set existingReminder to missing value
-		tell application "Reminders"
-			tell list "漫画"
-				set foundReminders to (get reminders whose name is productTitle and completed is false)
-				if (count of foundReminders) > 0 then
-					set existingReminder to item 1 of foundReminders
-				end if
-
-				if existingReminder is not missing value then
-					if due date of existingReminder is not dueDate then
-						set due date of existingReminder to dueDate
-						set end of alertMessages to (productTitle & " (" & dueDate & ")")
+			-- 同じ作品の既存リマインダーを取得
+			set existingReminder to missing value
+			tell application "Reminders"
+				tell list "漫画"
+					set foundReminders to (get reminders whose name is reminderName and completed is false)
+					if (count of foundReminders) > 0 then
+						set existingReminder to item 1 of foundReminders
+					else
+						set foundReminders to (get reminders whose name is alternateReminderName and completed is false)
+						if (count of foundReminders) > 0 then
+							set existingReminder to item 1 of foundReminders
+						end if
 					end if
-				else
-					make new reminder with properties {name:productTitle, due date:dueDate}
-					set end of alertMessages to (productTitle & " (" & dueDate & ")")
-				end if
+
+					if existingReminder is not missing value then
+						set reminderChanged to false
+						if name of existingReminder is not reminderName then
+							set name of existingReminder to reminderName
+							set reminderChanged to true
+						end if
+
+						if hasDueDate then
+							set currentDueDate to due date of existingReminder
+							if currentDueDate is missing value or currentDueDate is not dueDate then
+								set due date of existingReminder to dueDate
+								set reminderChanged to true
+							end if
+
+							if reminderChanged then
+								set end of alertMessages to (reminderName & " (" & dueDate & ")")
+							end if
+						else
+							if due date of existingReminder is not missing value then
+								set due date of existingReminder to missing value
+								set reminderChanged to true
+							end if
+
+							if reminderChanged then
+								set end of alertMessages to (reminderName & " (期限なし)")
+							end if
+						end if
+					else
+						if hasDueDate then
+							make new reminder with properties {name:reminderName, due date:dueDate}
+							set end of alertMessages to (reminderName & " (" & dueDate & ")")
+						else
+							make new reminder with properties {name:reminderName}
+							set end of alertMessages to (reminderName & " (期限なし)")
+						end if
+					end if
+				end tell
 			end tell
-		end tell
-	else
-		set end of skippedList to (productTitle & " (" & noticeText & ")")
+		end if
 	end if
 end repeat
 

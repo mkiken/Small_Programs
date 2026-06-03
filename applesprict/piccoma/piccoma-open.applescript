@@ -1,4 +1,4 @@
--- ピッコマの「¥0+」の漫画詳細ページをN件開く
+-- ピッコマの「¥0+」と「爆読み¥0」の漫画詳細ページをN件開く
 -- Chromeなどからサービスで呼んだり、osascriptコマンドで呼んだりとサービス経由だととても重いので、automatorからアプリケーションとして起動するとよい
 
 on run argv
@@ -45,15 +45,17 @@ tell application "Google Chrome"
 		set URL of historyTab to "https://piccoma.com/web/bookshelf/bookmark"
 		delay 3 -- ページの読み込みを待つ
 
-		-- 無料プラスバッジを持つリンクを取得
-		set freePlusLinks to (execute historyTab javascript "
+		-- 対象バッジを持つリンクを取得
+		set targetLinks to (execute historyTab javascript "
                        (function() {
                                const links = [];
-                               const badges = document.querySelectorAll('.PCOM-prdList_badge_freeplus');
-                               for (let i = 0; i < Math.min(badges.length, " & pageCount & "); i++) {
+                               const seen = new Set();
+                               const badges = document.querySelectorAll('.PCOM-prdList_badge_freeplus, .PCOM-prdList_badge_bingefree');
+                               for (let i = 0; i < badges.length && links.length < " & pageCount & "; i++) {
                                        const badge = badges[i];
                                        const link = badge.closest('a');
-                                       if (link && link.href) {
+                                       if (link && link.href && !seen.has(link.href)) {
+                                               seen.add(link.href);
                                                links.push(link.href);
                                        }
                                }
@@ -62,8 +64,8 @@ tell application "Google Chrome"
                ") as text
 
 		-- 取得したリンクを新しいタブで開く
-		if freePlusLinks is not "" then
-			set linkList to paragraphs of (do shell script "echo " & quoted form of freePlusLinks & " | tr ',' '
+		if targetLinks is not "" then
+			set linkList to paragraphs of (do shell script "echo " & quoted form of targetLinks & " | tr ',' '
 '")
 			repeat with linkURL in linkList
 				make new tab with properties {URL:linkURL}
