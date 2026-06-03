@@ -37,14 +37,12 @@ on run argv
 
 tell application "Google Chrome"
 	activate
-	set theWindow to front window
-	set theTabs to every tab of theWindow
-	set tabCount to count of theTabs
+	set theWindow to make new window
 
-	-- お気に入りページを新しいタブで開く
+	-- お気に入りページを新規ウィンドウの最初のタブで開く
 	tell theWindow
-		make new tab with properties {URL:"https://piccoma.com/web/bookshelf/bookmark"}
 		set historyTab to active tab
+		set URL of historyTab to "https://piccoma.com/web/bookshelf/bookmark"
 		delay 3 -- ページの読み込みを待つ
 
 		-- 無料プラスバッジを持つリンクを取得
