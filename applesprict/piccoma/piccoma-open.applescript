@@ -44,6 +44,7 @@ tell application "Google Chrome"
 		set historyTab to active tab
 		set URL of historyTab to "https://piccoma.com/web/bookshelf/bookmark"
 		delay 3 -- ページの読み込みを待つ
+		my assertBookshelfOpened(historyTab)
 
 		-- 対象バッジを持つリンクを取得
 		set targetLinks to (execute historyTab javascript "
@@ -65,8 +66,7 @@ tell application "Google Chrome"
 
 		-- 取得したリンクを新しいタブで開く
 		if targetLinks is not "" then
-			set linkList to paragraphs of (do shell script "echo " & quoted form of targetLinks & " | tr ',' '
-'")
+			set linkList to my splitText(targetLinks, ",")
 			repeat with linkURL in linkList
 				make new tab with properties {URL:linkURL}
 				delay 1 -- 各タブの読み込みを少し待つ
@@ -82,3 +82,39 @@ end tell
 		display alert "オープン完了" message "実行時間: " & elapsedSeconds & "秒"
 	end if
 end run
+
+on splitText(theText, delimiter)
+	set oldDelims to AppleScript's text item delimiters
+	set AppleScript's text item delimiters to delimiter
+	set splitItems to text items of theText
+	set AppleScript's text item delimiters to oldDelims
+	return splitItems
+end splitText
+
+on assertBookshelfOpened(theTab)
+	set bookshelfState to "script_error"
+	try
+		tell application "Google Chrome"
+			set bookshelfState to (execute theTab javascript "
+				(function() {
+					const bodyText = (document.body ? document.body.innerText : '').trim();
+					if (!location.hostname.endsWith('piccoma.com') || location.pathname !== '/web/bookshelf/bookmark') {
+						return 'not_bookshelf';
+					}
+					if (/ログインしてください|ログインが必要|ログインする|会員登録|メールアドレス|パスワード|login/i.test(bodyText)) {
+						return 'login_required';
+					}
+					if (!document.body || bodyText.length === 0) {
+						return 'not_loaded';
+					}
+					return 'ok';
+				})()
+			") as text
+		end tell
+	end try
+
+	if bookshelfState is not "ok" then
+		display alert "本棚を開けませんでした" message "ログイン状態を確認してから再実行してください。" as critical
+		error number -128
+	end if
+end assertBookshelfOpened
