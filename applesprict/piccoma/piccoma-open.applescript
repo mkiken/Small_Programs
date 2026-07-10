@@ -43,7 +43,7 @@ tell application "Google Chrome"
 	tell theWindow
 		set historyTab to active tab
 		set URL of historyTab to "https://piccoma.com/web/bookshelf/bookmark"
-		delay 3 -- ページの読み込みを待つ
+		my waitForBookshelfLoaded(historyTab)
 		my assertBookshelfOpened(historyTab)
 
 		-- 対象バッジを持つリンクを取得
@@ -64,12 +64,11 @@ tell application "Google Chrome"
                        })()
                ") as text
 
-		-- 取得したリンクを新しいタブで開く
+		-- 取得したリンクを新しいタブで開く（開いた後にタブを読む処理はないので読み込み待ちは不要）
 		if targetLinks is not "" then
 			set linkList to my splitText(targetLinks, ",")
 			repeat with linkURL in linkList
 				make new tab with properties {URL:linkURL}
-				delay 1 -- 各タブの読み込みを少し待つ
 			end repeat
 		end if
 	end tell
@@ -90,6 +89,29 @@ on splitText(theText, delimiter)
 	set AppleScript's text item delimiters to oldDelims
 	return splitItems
 end splitText
+
+-- 固定delayの代わりに本棚ページの読み込み完了をポーリングで待つ
+on waitForBookshelfLoaded(theTab)
+	repeat with attempt from 1 to 20
+		set loadState to "pending"
+		try
+			tell application "Google Chrome"
+				set loadState to (execute theTab javascript "
+					(function() {
+						if (document.readyState !== 'complete') return 'loading';
+						if (!document.body || document.body.innerText.trim().length === 0) return 'empty';
+						if (document.querySelector('.PCOM-prdList_badge_freeplus, .PCOM-prdList_badge_bingefree')) return 'ready';
+						return 'no_badge';
+					})()
+				") as text
+			end tell
+		end try
+		if loadState is "ready" then return
+		-- DOMは完成しているがバッジが出ない場合（対象作品なし等）は、描画待ちを数回だけ延長して先へ進む
+		if loadState is "no_badge" and attempt ≥ 10 then return
+		delay 0.5
+	end repeat
+end waitForBookshelfLoaded
 
 on assertBookshelfOpened(theTab)
 	set bookshelfState to "script_error"
