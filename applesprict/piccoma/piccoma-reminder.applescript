@@ -6,8 +6,13 @@ set startTime to (current date)
 set noticeTextList to {}
 set productTitleList to {}
 set productTypeList to {}
+set dueDateStringList to {}
 set alertMessages to {}
 set bingeFreePrefix to "【爆読み¥0】"
+
+-- 期日抽出ロジックはページ内JavaScriptへ注入して実行する（作品ごとのシェル起動をなくすため）
+set scriptFolder to (do shell script "dirname " & quoted form of POSIX path of (path to me))
+set extractDateJs to read POSIX file (scriptFolder & "/extract-date.js") as «class utf8»
 
 tell application "Google Chrome"
 	activate
@@ -18,9 +23,10 @@ tell application "Google Chrome"
 	repeat with i from 1 to (count of urlList)
 		set theURL to item i of urlList
 		if theURL contains "https://piccoma.com/web/product" then
-			-- 種別判定・期日テキスト・タイトルを1回のJavaScript実行でまとめて取得する
+			-- 種別判定・期日テキスト・タイトル・期日抽出を1回のJavaScript実行でまとめて行う
 			set productInfo to (execute (tab i of theWindow) javascript "
 				(function() {
+					" & extractDateJs & "
 					const summary = document.querySelector('.PCM-l_productSummary1, .PCM-productSummary1');
 					const noticeNodes = Array.from(document.querySelectorAll('.PCM-productNoticeList_notice, .PCM-productNoticeList_campaign'));
 					const noticeAll = noticeNodes.map((node) => node.textContent.trim()).join(' ');
@@ -49,43 +55,49 @@ tell application "Google Chrome"
 					const titleNode = document.querySelector('.PCM-productTitle');
 					const title = titleNode ? titleNode.textContent.trim() : '';
 
+					const dueDateString = extractDueDate(noticeText, new Date());
+
 					// タブ区切りで返すため、値中のタブは空白に潰す
-					return [productType, noticeText, title].map((v) => v.replace(/\\t/g, ' ')).join('\\t');
+					return [productType, noticeText, title, dueDateString].map((v) => v.replace(/\\t/g, ' ')).join('\\t');
 				})()
 			") as text
 
 			set infoItems to my splitText(productInfo, tab)
-			if (count of infoItems) is 3 then
+			if (count of infoItems) is 4 then
 				set end of productTypeList to item 1 of infoItems
 				set end of noticeTextList to item 2 of infoItems
 				set end of productTitleList to item 3 of infoItems
+				set end of dueDateStringList to item 4 of infoItems
 			end if
 		end if
 	end repeat
 end tell
 
--- 「漫画」リストの未完了リマインダーを一括取得してキャッシュする（遅いwhoseクエリはここだけ）
+-- 「漫画」リストの未完了リマインダーの名前・期限・idをpropertiesで一括取得してキャッシュする（遅いwhoseクエリはここの1回だけ）
+set cachedNames to {}
+set cachedIds to {}
+set cachedDueDates to {}
 tell application "Reminders"
 	tell list "漫画"
-		set cachedReminders to (get reminders whose completed is false)
-		set cachedNames to (get name of reminders whose completed is false)
+		set cachedProps to properties of (reminders whose completed is false)
 	end tell
+	repeat with cachedRec in cachedProps
+		set end of cachedNames to name of cachedRec
+		set end of cachedIds to id of cachedRec
+		set end of cachedDueDates to due date of cachedRec
+	end repeat
 end tell
 
 -- 配列を使ってリマインダー作成
 set skippedList to {}
-set scriptFolder to (do shell script "dirname " & quoted form of POSIX path of (path to me))
-set extractDateScript to quoted form of (scriptFolder & "/extract-date.sh")
 
 repeat with i from 1 to (count of noticeTextList)
 	set noticeText to item i of noticeTextList
 	set productTitle to item i of productTitleList
 	set productType to item i of productTypeList
+	set dateString to item i of dueDateStringList
 
 	if productType is "freeplus" or productType is "bingefree" then
-		-- quoted form で安全にエスケープし、stdin経由で日付抽出スクリプトへ渡す
-		set dateString to do shell script "printf '%s' " & quoted form of noticeText & " | " & extractDateScript
-
 		set hasDueDate to false
 		if dateString is not "" then
 			try
@@ -108,51 +120,63 @@ repeat with i from 1 to (count of noticeTextList)
 			set foundIndex to my indexOf(cachedNames, reminderName)
 			if foundIndex is 0 then set foundIndex to my indexOf(cachedNames, alternateReminderName)
 
-			tell application "Reminders"
-				tell list "漫画"
-					if foundIndex > 0 then
-						set existingReminder to item foundIndex of cachedReminders
-						set reminderChanged to false
-						if item foundIndex of cachedNames is not reminderName then
-							set name of existingReminder to reminderName
-							set item foundIndex of cachedNames to reminderName
-							set reminderChanged to true
-						end if
+			if foundIndex > 0 then
+				-- 変更の要否はキャッシュ上で判定し、Apple Eventは実際に書き込むときだけ送る
+				set needsRename to ((item foundIndex of cachedNames) is not reminderName)
+				set cachedDueDate to item foundIndex of cachedDueDates
+				if hasDueDate then
+					set needsDueDateUpdate to (cachedDueDate is missing value) or (cachedDueDate is not dueDate)
+				else
+					set needsDueDateUpdate to (cachedDueDate is not missing value)
+				end if
 
-						if hasDueDate then
-							set currentDueDate to due date of existingReminder
-							if currentDueDate is missing value or currentDueDate is not dueDate then
-								set due date of existingReminder to dueDate
-								set reminderChanged to true
+				if needsRename or needsDueDateUpdate then
+					tell application "Reminders"
+						tell list "漫画"
+							set existingReminder to reminder id (item foundIndex of cachedIds)
+							if needsRename then set name of existingReminder to reminderName
+							if needsDueDateUpdate then
+								if hasDueDate then
+									set due date of existingReminder to dueDate
+								else
+									set due date of existingReminder to missing value
+								end if
 							end if
+						end tell
+					end tell
 
-							if reminderChanged then
-								set end of alertMessages to (reminderName & " (" & dueDate & ")")
-							end if
-						else
-							if due date of existingReminder is not missing value then
-								set due date of existingReminder to missing value
-								set reminderChanged to true
-							end if
-
-							if reminderChanged then
-								set end of alertMessages to (reminderName & " (期限なし)")
-							end if
-						end if
+					set item foundIndex of cachedNames to reminderName
+					if hasDueDate then
+						set item foundIndex of cachedDueDates to dueDate
+						set end of alertMessages to (reminderName & " (" & dueDate & ")")
 					else
+						set item foundIndex of cachedDueDates to missing value
+						set end of alertMessages to (reminderName & " (期限なし)")
+					end if
+				end if
+			else
+				tell application "Reminders"
+					tell list "漫画"
 						if hasDueDate then
 							set newReminder to make new reminder with properties {name:reminderName, due date:dueDate}
-							set end of alertMessages to (reminderName & " (" & dueDate & ")")
 						else
 							set newReminder to make new reminder with properties {name:reminderName}
-							set end of alertMessages to (reminderName & " (期限なし)")
 						end if
-						-- 同一実行内で同じ作品を重複作成しないようキャッシュへ追加する
-						set end of cachedReminders to newReminder
-						set end of cachedNames to reminderName
-					end if
+						set newReminderId to id of newReminder
+					end tell
 				end tell
-			end tell
+
+				if hasDueDate then
+					set end of alertMessages to (reminderName & " (" & dueDate & ")")
+					set end of cachedDueDates to dueDate
+				else
+					set end of alertMessages to (reminderName & " (期限なし)")
+					set end of cachedDueDates to missing value
+				end if
+				-- 同一実行内で同じ作品を重複作成しないようキャッシュへ追加する
+				set end of cachedNames to reminderName
+				set end of cachedIds to newReminderId
+			end if
 		end if
 	end if
 end repeat
@@ -200,7 +224,7 @@ on indexOf(theList, theValue)
 	return 0
 end indexOf
 
--- extract-date.sh の出力 "YYYY/M/D HH:MM" をロケール非依存で date に変換する
+-- extract-date.js の出力 "YYYY/M/D HH:MM" をロケール非依存で date に変換する
 on makeDateFromString(dateString)
 	set parts to my splitText(dateString, " ")
 	set ymd to my splitText(item 1 of parts, "/")

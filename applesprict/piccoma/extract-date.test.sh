@@ -1,13 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-script_path="${1:-applesprict/piccoma/extract-date.sh}"
+lib_path="${1:-applesprict/piccoma/extract-date.js}"
+
+# JXAランナーからファイル読み込みするため絶対パスに正規化する
+lib_abs="$(cd "$(dirname "$lib_path")" && pwd)/$(basename "$lib_path")"
 
 # 年またぎ判定を決定的にするため、タイムゾーンを固定して epoch を組み立てる
 export TZ=Asia/Tokyo
 
 epoch() {
 	/bin/date -j -f '%Y-%m-%d %H:%M' "$1" +%s
+}
+
+# extract-date.js を JXA で評価し、extractDueDate を1ケース実行する
+# 引数: 入力テキスト / EXTRACT_DATE_NOW（epoch秒、空なら現在時刻）
+run_extract() {
+	EXTRACT_LIB="$lib_abs" EXTRACT_INPUT="$1" EXTRACT_DATE_NOW="${2:-}" /usr/bin/osascript -l JavaScript -e '
+		ObjC.import("stdlib");
+		function env(name) {
+			const value = $.getenv(name);
+			return value === undefined || value === null ? "" : String(value);
+		}
+		eval($.NSString.stringWithContentsOfFileEncodingError(env("EXTRACT_LIB"), $.NSUTF8StringEncoding, $()).js);
+		const nowSec = env("EXTRACT_DATE_NOW");
+		const now = nowSec === "" ? new Date() : new Date(Number(nowSec) * 1000);
+		extractDueDate(env("EXTRACT_INPUT"), now);
+	'
 }
 
 failures=0
@@ -20,11 +39,7 @@ run_case() {
 	local expected="$4"
 	local actual
 
-	if [[ -n "$now" ]]; then
-		actual=$(printf '%s' "$input" | EXTRACT_DATE_NOW="$now" /bin/bash "$script_path")
-	else
-		actual=$(printf '%s' "$input" | /bin/bash "$script_path")
-	fi
+	actual=$(run_extract "$input" "$now")
 
 	if [[ "$actual" != "$expected" ]]; then
 		printf 'FAIL: %s\n  input:    %s\n  expected: [%s]\n  actual:   [%s]\n' "$description" "$input" "$expected" "$actual" >&2
@@ -70,4 +85,4 @@ if ((failures > 0)); then
 	exit 1
 fi
 
-printf 'PASS: extract-date.sh all cases passed.\n'
+printf 'PASS: extract-date.js all cases passed.\n'

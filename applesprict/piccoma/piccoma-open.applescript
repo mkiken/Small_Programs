@@ -35,50 +35,59 @@ on run argv
 
 	set startTime to (current date)
 
-tell application "Google Chrome"
-	activate
-	set theWindow to make new window
+	tell application "Google Chrome"
+		activate
+		set theWindow to make new window
 
-	-- お気に入りページを新規ウィンドウの最初のタブで開く
-	tell theWindow
-		set historyTab to active tab
-		set URL of historyTab to "https://piccoma.com/web/bookshelf/bookmark"
-		my waitForBookshelfLoaded(historyTab)
-		my assertBookshelfOpened(historyTab)
+		-- お気に入りページを新規ウィンドウの最初のタブで開く
+		tell theWindow
+			set historyTab to active tab
+			set URL of historyTab to "https://piccoma.com/web/bookshelf/bookmark"
+			set bookshelfState to my waitForBookshelfLoaded(historyTab)
 
-		-- 対象バッジを持つリンクを取得
-		set targetLinks to (execute historyTab javascript "
-                       (function() {
-                               const links = [];
-                               const seen = new Set();
-                               const badges = document.querySelectorAll('.PCOM-prdList_badge_freeplus, .PCOM-prdList_badge_bingefree');
-                               for (let i = 0; i < badges.length && links.length < " & pageCount & "; i++) {
-                                       const badge = badges[i];
-                                       const link = badge.closest('a');
-                                       if (link && link.href && !seen.has(link.href)) {
-                                               seen.add(link.href);
-                                               links.push(link.href);
-                                       }
-                               }
-                               return links.join(',');
-                       })()
-               ") as text
+			if bookshelfState is not "ready" and bookshelfState is not "no_target" then
+				display alert "本棚を開けませんでした" message "ログイン状態を確認してから再実行してください。" as critical
+				error number -128
+			end if
 
-		-- 取得したリンクを新しいタブで開く（開いた後にタブを読む処理はないので読み込み待ちは不要）
-		if targetLinks is not "" then
-			set linkList to my splitText(targetLinks, ",")
-			repeat with linkURL in linkList
-				make new tab with properties {URL:linkURL}
-			end repeat
-		end if
+			-- 対象バッジを持つリンクを取得（対象作品なしが確定していればJavaScript実行ごと省く）
+			set targetLinks to ""
+			if bookshelfState is "ready" then
+				set targetLinks to (execute historyTab javascript "
+	                       (function() {
+	                               const links = [];
+	                               const seen = new Set();
+	                               const badges = document.querySelectorAll('.PCOM-prdList_badge_freeplus, .PCOM-prdList_badge_bingefree');
+	                               for (let i = 0; i < badges.length && links.length < " & pageCount & "; i++) {
+	                                       const badge = badges[i];
+	                                       const link = badge.closest('a');
+	                                       if (link && link.href && !seen.has(link.href)) {
+	                                               seen.add(link.href);
+	                                               links.push(link.href);
+	                                       }
+	                               }
+	                               return links.join(',');
+	                       })()
+	               ") as text
+			end if
+
+			-- 取得したリンクを新しいタブで開く（開いた後にタブを読む処理はないので読み込み待ちは不要）
+			if targetLinks is not "" then
+				set linkList to my splitText(targetLinks, ",")
+				repeat with linkURL in linkList
+					make new tab with properties {URL:linkURL}
+				end repeat
+			end if
+		end tell
 	end tell
-end tell
 
 	set endTime to (current date)
 	set elapsedSeconds to (endTime - startTime) as integer
 
 	if showAlert then
-		display alert "オープン完了" message "実行時間: " & elapsedSeconds & "秒"
+		set alertMessage to "実行時間: " & elapsedSeconds & "秒"
+		if bookshelfState is "no_target" then set alertMessage to "対象作品はありませんでした。" & return & alertMessage
+		display alert "オープン完了" message alertMessage
 	end if
 end run
 
@@ -90,53 +99,34 @@ on splitText(theText, delimiter)
 	return splitItems
 end splitText
 
--- 固定delayの代わりに本棚ページの読み込み完了をポーリングで待つ
+-- 固定delayの代わりに本棚ページの読み込み完了をポーリングで待ち、最終状態を返す
+-- "ready": 対象バッジあり / "no_target": 作品リスト描画済みだが対象バッジなし / それ以外: 失敗（login_required, not_bookshelf, loading など）
+-- 読み込み待ちとログイン検証を1つのJavaScriptに統合してあるので、ログイン切れはポーリング途中でも即座に確定する
 on waitForBookshelfLoaded(theTab)
+	set loadState to "script_error"
 	repeat with attempt from 1 to 20
-		set loadState to "pending"
+		set loadState to "script_error"
 		try
 			tell application "Google Chrome"
 				set loadState to (execute theTab javascript "
 					(function() {
-						if (document.readyState !== 'complete') return 'loading';
-						if (!document.body || document.body.innerText.trim().length === 0) return 'empty';
+						if (!location.hostname.endsWith('piccoma.com') || location.pathname !== '/web/bookshelf/bookmark') return 'not_bookshelf';
 						if (document.querySelector('.PCOM-prdList_badge_freeplus, .PCOM-prdList_badge_bingefree')) return 'ready';
-						return 'no_badge';
+						const bodyText = (document.body ? document.body.innerText : '').trim();
+						if (/ログインしてください|ログインが必要|ログインする|会員登録|メールアドレス|パスワード|login/i.test(bodyText)) return 'login_required';
+						// 作品リンクは描画済みなのに対象バッジが無ければ、対象作品なしと確定して待たずに戻る
+						if (document.readyState === 'complete' && document.querySelector('a[href*=\"/web/product/\"]')) return 'no_target';
+						if (document.readyState !== 'complete') return 'loading';
+						if (bodyText.length === 0) return 'empty';
+						return 'rendering';
 					})()
 				") as text
 			end tell
 		end try
-		if loadState is "ready" then return
-		-- DOMは完成しているがバッジが出ない場合（対象作品なし等）は、描画待ちを数回だけ延長して先へ進む
-		if loadState is "no_badge" and attempt ≥ 10 then return
+		if loadState is "ready" or loadState is "no_target" or loadState is "login_required" then return loadState
+		-- 遷移直後は前ページのURLが見えることがあるため、not_bookshelfは数回粘ってから確定させる
+		if loadState is "not_bookshelf" and attempt ≥ 6 then return loadState
 		delay 0.5
 	end repeat
+	return loadState
 end waitForBookshelfLoaded
-
-on assertBookshelfOpened(theTab)
-	set bookshelfState to "script_error"
-	try
-		tell application "Google Chrome"
-			set bookshelfState to (execute theTab javascript "
-				(function() {
-					const bodyText = (document.body ? document.body.innerText : '').trim();
-					if (!location.hostname.endsWith('piccoma.com') || location.pathname !== '/web/bookshelf/bookmark') {
-						return 'not_bookshelf';
-					}
-					if (/ログインしてください|ログインが必要|ログインする|会員登録|メールアドレス|パスワード|login/i.test(bodyText)) {
-						return 'login_required';
-					}
-					if (!document.body || bodyText.length === 0) {
-						return 'not_loaded';
-					}
-					return 'ok';
-				})()
-			") as text
-		end tell
-	end try
-
-	if bookshelfState is not "ok" then
-		display alert "本棚を開けませんでした" message "ログイン状態を確認してから再実行してください。" as critical
-		error number -128
-	end if
-end assertBookshelfOpened

@@ -40,15 +40,17 @@ assert_order() {
 	fi
 }
 
-assert_contains 'my assertBookshelfOpened(historyTab)' 'bookshelf availability is checked before link extraction'
-assert_contains 'on assertBookshelfOpened(theTab)' 'bookshelf availability check handler exists'
+assert_contains 'on waitForBookshelfLoaded(theTab)' 'bookshelf load polling handler exists'
+assert_contains 'my waitForBookshelfLoaded(historyTab)' 'bookshelf load is polled after navigation'
+assert_order 'my waitForBookshelfLoaded(historyTab)' 'set targetLinks to (execute historyTab javascript "' 'load polling runs before target link extraction'
+assert_contains "return 'login_required'" 'login detection is merged into the polling javascript'
+assert_contains "return 'not_bookshelf'" 'URL validation is merged into the polling javascript'
+assert_contains "return 'no_target'" 'rendered-but-no-badge state short-circuits the polling wait'
+assert_contains 'a[href*=\"/web/product/\"]' 'product links are used to detect a rendered bookshelf list'
+assert_not_contains 'on assertBookshelfOpened' 'separate post-polling assertion round trip is removed'
 assert_contains 'display alert "本棚を開けませんでした"' 'fatal bookshelf failure alert is shown'
 assert_contains 'ログイン状態を確認してから再実行してください。' 'alert explains login/session recovery'
 assert_contains 'error number -128' 'bookshelf failure terminates abnormally'
-assert_order 'my assertBookshelfOpened(historyTab)' 'set targetLinks to (execute historyTab javascript "' 'bookshelf check runs before target link extraction'
-assert_contains 'on waitForBookshelfLoaded(theTab)' 'bookshelf load polling handler exists'
-assert_contains 'my waitForBookshelfLoaded(historyTab)' 'bookshelf load is polled after navigation'
-assert_order 'my waitForBookshelfLoaded(historyTab)' 'my assertBookshelfOpened(historyTab)' 'load polling runs before bookshelf availability check'
 assert_not_contains 'delay 3' 'fixed page-load delay is replaced by polling'
 assert_not_contains 'delay 1 ' 'per-tab fixed delay is removed'
 
@@ -65,4 +67,4 @@ for target in "$script_path" "$reminder_script_path"; do
 	fi
 done
 
-printf 'PASS: piccoma-open bookshelf failure handling is present.\n'
+printf 'PASS: piccoma-open bookshelf handling is present.\n'
