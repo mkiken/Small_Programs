@@ -53,6 +53,9 @@ assert_contains 'ログイン状態を確認してから再実行してくださ
 assert_contains 'error number -128' 'bookshelf failure terminates abnormally'
 assert_not_contains 'delay 3' 'fixed page-load delay is replaced by polling'
 assert_not_contains 'delay 1 ' 'per-tab fixed delay is removed'
+assert_contains 'delay 0.2' 'early polling uses a short interval to catch fast loads'
+assert_contains 'delay 0.5' 'later polling backs off to the longer interval'
+assert_order 'delay 0.2' 'delay 0.5' 'short interval comes before the backoff interval'
 
 compiled_script=$(/usr/bin/mktemp -t piccoma-open-test)
 cleanup() {

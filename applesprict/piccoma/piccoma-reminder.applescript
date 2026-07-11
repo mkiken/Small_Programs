@@ -73,20 +73,31 @@ tell application "Google Chrome"
 	end repeat
 end tell
 
+-- 対象作品が1件もなければ、この後のRemindersアクセス（遅いwhoseクエリ）を丸ごと省く
+set hasTargetProduct to false
+repeat with candidateType in productTypeList
+	if (contents of candidateType) is "freeplus" or (contents of candidateType) is "bingefree" then
+		set hasTargetProduct to true
+		exit repeat
+	end if
+end repeat
+
 -- 「漫画」リストの未完了リマインダーの名前・期限・idをpropertiesで一括取得してキャッシュする（遅いwhoseクエリはここの1回だけ）
 set cachedNames to {}
 set cachedIds to {}
 set cachedDueDates to {}
-tell application "Reminders"
-	tell list "漫画"
-		set cachedProps to properties of (reminders whose completed is false)
+if hasTargetProduct then
+	tell application "Reminders"
+		tell list "漫画"
+			set cachedProps to properties of (reminders whose completed is false)
+		end tell
+		repeat with cachedRec in cachedProps
+			set end of cachedNames to name of cachedRec
+			set end of cachedIds to id of cachedRec
+			set end of cachedDueDates to due date of cachedRec
+		end repeat
 	end tell
-	repeat with cachedRec in cachedProps
-		set end of cachedNames to name of cachedRec
-		set end of cachedIds to id of cachedRec
-		set end of cachedDueDates to due date of cachedRec
-	end repeat
-end tell
+end if
 
 -- 配列を使ってリマインダー作成
 set skippedList to {}

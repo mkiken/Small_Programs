@@ -29,6 +29,10 @@ assert_contains '" & extractDateJs & "' 'date extraction library is injected int
 assert_contains 'extractDueDate(noticeText, new Date())' 'due date is extracted inside the page javascript'
 assert_not_contains 'extract-date.sh' 'per-product shell invocation is removed'
 
+# 対象作品ゼロのときはRemindersへのApple Event自体を発行しない
+assert_contains 'set hasTargetProduct to false' 'target product presence is computed before touching Reminders'
+assert_contains 'if hasTargetProduct then' 'reminders bulk fetch is guarded by target product presence'
+
 # 遅いwhoseクエリは1回だけ、名前・期限・idはpropertiesで一括取得する
 assert_contains 'properties of (reminders whose completed is false)' 'incomplete reminders are bulk-fetched with properties'
 whose_count=$(/usr/bin/grep -Fc 'whose completed is false' "$script_path")

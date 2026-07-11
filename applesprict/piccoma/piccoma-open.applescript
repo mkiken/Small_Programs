@@ -104,7 +104,7 @@ end splitText
 -- 読み込み待ちとログイン検証を1つのJavaScriptに統合してあるので、ログイン切れはポーリング途中でも即座に確定する
 on waitForBookshelfLoaded(theTab)
 	set loadState to "script_error"
-	repeat with attempt from 1 to 20
+	repeat with attempt from 1 to 24
 		set loadState to "script_error"
 		try
 			tell application "Google Chrome"
@@ -124,9 +124,14 @@ on waitForBookshelfLoaded(theTab)
 			end tell
 		end try
 		if loadState is "ready" or loadState is "no_target" or loadState is "login_required" then return loadState
-		-- 遷移直後は前ページのURLが見えることがあるため、not_bookshelfは数回粘ってから確定させる
-		if loadState is "not_bookshelf" and attempt ≥ 6 then return loadState
-		delay 0.5
+		-- 遷移直後は前ページのURLが見えることがあるため、not_bookshelfは約3秒粘ってから確定させる
+		if loadState is "not_bookshelf" and attempt ≥ 10 then return loadState
+		-- 読み込み完了の直後を逃さないよう序盤は短い間隔で、以降は0.5秒間隔に戻す
+		if attempt ≤ 5 then
+			delay 0.2
+		else
+			delay 0.5
+		end if
 	end repeat
 	return loadState
 end waitForBookshelfLoaded
