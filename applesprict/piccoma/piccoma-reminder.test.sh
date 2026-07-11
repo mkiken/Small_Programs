@@ -46,4 +46,25 @@ assert_contains 'reminder id (item foundIndex of cachedIds)' 'updates resolve th
 assert_contains 'item foundIndex of cachedDueDates' 'due date comparison uses the cached value'
 assert_not_contains 'due date of existingReminder is not missing value' 'per-product due date read is removed'
 
+# 統合モード（piccoma-openのrun script経由）からスクリプトフォルダを引数で受け取る
+assert_contains 'on run argv' 'script accepts the script folder as an argument for the integrated mode'
+
+# 未描画タブはLOADINGマーカーでポーリングし、取りこぼしを防ぐ
+assert_contains "if (!titleNode) return 'LOADING';" 'per-tab javascript reports unrendered pages'
+assert_contains 'if productInfo is not "LOADING" then return productInfo' 'polling exits as soon as the page is rendered'
+assert_contains 'delay 0.2' 'early polling uses a short interval'
+assert_contains 'delay 0.5' 'later polling backs off to the longer interval'
+assert_contains '読み込みタイムアウト' 'timed-out tabs are reported in the alert'
+
+# ウィンドウ不在・リストアクセス不可は明示アラートで停止する
+assert_contains 'count of windows' 'chrome window presence is checked before use'
+assert_contains 'Chromeのウィンドウがありません' 'missing chrome window shows an explicit alert'
+assert_contains 'リマインダーリスト「漫画」にアクセスできません' 'missing reminders list shows an explicit alert'
+
+# 期限切れリマインダーの自動完了（キャッシュ取得済みの実行時のみ、whoseクエリを増やさない）
+assert_contains 'property autoCompleteExpired : true' 'expired cleanup toggle exists'
+assert_contains 'if autoCompleteExpired and hasTargetProduct then' 'cleanup runs only when the reminders cache was fetched'
+assert_contains 'set completed of' 'expired reminders are marked completed'
+assert_contains '完了(期限切れ)' 'completed expired reminders are reported in the alert'
+
 printf 'PASS: piccoma-reminder consolidation is present.\n'

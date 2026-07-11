@@ -57,6 +57,18 @@ assert_contains 'delay 0.2' 'early polling uses a short interval to catch fast l
 assert_contains 'delay 0.5' 'later polling backs off to the longer interval'
 assert_order 'delay 0.2' 'delay 0.5' 'short interval comes before the backoff interval'
 
+# --reminder 統合モード: 開いた作品タブへ続けてリマインダー登録まで実行する
+assert_contains 'arg is "--reminder" or arg is "-r"' 'reminder integration flag is parsed'
+assert_contains '/piccoma-reminder.applescript' 'reminder script source is loaded from the script folder'
+assert_contains 'run script reminderSource with parameters {scriptFolder}' 'integrated mode chains into piccoma-reminder with the script folder'
+assert_order 'make new tab with properties {URL:linkURL}' 'run script reminderSource' 'tabs are opened before the reminder chain runs'
+assert_contains 'if runReminder and bookshelfState is "ready"' 'reminder chain runs only when target tabs were opened'
+assert_contains 'if showAlert and not reminderExecuted' 'open alert is suppressed when the reminder chain shows its own alert'
+
+# --count の上限で誤指定によるタブの大量オープンを防ぐ
+assert_contains 'set maxPageCount to 20' 'page count upper bound constant exists'
+assert_contains 'pageCount > maxPageCount' 'page count upper bound is enforced'
+
 compiled_script=$(/usr/bin/mktemp -t piccoma-open-test)
 cleanup() {
 	/bin/rm -f "$compiled_script"

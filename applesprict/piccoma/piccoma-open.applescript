@@ -1,22 +1,27 @@
 -- ピッコマの「¥0+」と「爆読み¥0」の漫画詳細ページをN件開く
 -- Chromeなどからサービスで呼んだり、osascriptコマンドで呼んだりとサービス経由だととても重いので、automatorからアプリケーションとして起動するとよい
+-- フラグ: --count N でページ数、--silent で完了アラート抑制、--reminder で開いた作品タブに対して piccoma-reminder.applescript を続けて実行する
 
 on run argv
 	-- フラグ解析
 	set showAlert to true
+	set runReminder to false
 	set pageCount to 5 -- デフォルト値
+	set maxPageCount to 20 -- 誤指定によるタブの大量オープンを防ぐ上限
 
 	set i to 1
 	repeat while i <= (count of argv)
 		set arg to item i of argv
 		if arg is "--silent" or arg is "-s" then
 			set showAlert to false
+		else if arg is "--reminder" or arg is "-r" then
+			set runReminder to true
 		else if arg is "--count" or arg is "-c" then
 			if i + 1 <= (count of argv) then
 				try
 					set pageCount to (item (i + 1) of argv as integer)
-					if pageCount < 1 then
-						display dialog "ページ数には1以上の数値を指定してください。" with icon stop with title "引数エラー"
+					if pageCount < 1 or pageCount > maxPageCount then
+						display dialog "ページ数には1〜" & maxPageCount & "の数値を指定してください。" with icon stop with title "引数エラー"
 						error number -128
 					end if
 					set i to i + 1
@@ -81,10 +86,20 @@ on run argv
 		end tell
 	end tell
 
+	-- 統合モード: 開いた作品タブへ続けてリマインダー登録までを一気に実行する（ページ読み込み待ちはreminder側のポーリングが担う）
+	-- run script内ではpath to meが呼び出し元を指すため、スクリプトフォルダを引数で渡す
+	set reminderExecuted to false
+	if runReminder and bookshelfState is "ready" then
+		set scriptFolder to (do shell script "dirname " & quoted form of POSIX path of (path to me))
+		set reminderSource to read POSIX file (scriptFolder & "/piccoma-reminder.applescript") as «class utf8»
+		run script reminderSource with parameters {scriptFolder}
+		set reminderExecuted to true
+	end if
+
 	set endTime to (current date)
 	set elapsedSeconds to (endTime - startTime) as integer
 
-	if showAlert then
+	if showAlert and not reminderExecuted then
 		set alertMessage to "実行時間: " & elapsedSeconds & "秒"
 		if bookshelfState is "no_target" then set alertMessage to "対象作品はありませんでした。" & return & alertMessage
 		display alert "オープン完了" message alertMessage
