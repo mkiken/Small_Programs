@@ -8,9 +8,9 @@ function extractDueDate(text, now) {
 	let match = text.match(/([0-9]{4}\/[0-9]{1,2}\/[0-9]{1,2})[^0-9]*([0-9]{2}:[0-9]{2})/);
 	if (match) return match[1] + ' ' + match[2];
 
-	// パターン1b: 時刻なしの YYYY/M/D はその日いっぱいが期限とみなし 23:59 を補完
+	// パターン1b: 時刻なしの YYYY/M/D は期限日の開始時刻とみなし 0:00 を補完
 	match = text.match(/[0-9]{4}\/[0-9]{1,2}\/[0-9]{1,2}/);
-	if (match) return match[0] + ' 23:59';
+	if (match) return match[0] + ' 0:00';
 
 	// パターン2: M/D(曜日)HH:MM（年なしなので年を補完する）
 	match = text.match(/([0-9]{1,2}\/[0-9]{1,2})\([^)]+\)([0-9]{2}:[0-9]{2})/);
