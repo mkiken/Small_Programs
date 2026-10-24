@@ -57,6 +57,12 @@ assert_contains 'delay 0.2' 'early polling uses a short interval to catch fast l
 assert_contains 'delay 0.5' 'later polling backs off to the longer interval'
 assert_order 'delay 0.2' 'delay 0.5' 'short interval comes before the backoff interval'
 
+# ログイン切れ時はXログインを開き、本棚へ戻るのを待つ
+assert_contains "location.pathname.startsWith('/web/acc/')" 'signin page is detected immediately as login_required'
+assert_contains '/web/acc/twitter/signin?next_url=/web/bookshelf/bookmark' 'X login url is opened when logged out'
+assert_contains 'on waitForLoginReturn(theTab)' 'login return polling handler exists'
+assert_order 'my waitForLoginReturn(historyTab)' 'display alert "本棚を開けませんでした"' 'login return is awaited before the failure alert'
+
 # --reminder 統合モード: 開いた作品タブへ続けてリマインダー登録まで実行する
 assert_contains 'arg is "--reminder" or arg is "-r"' 'reminder integration flag is parsed'
 assert_contains '/piccoma-reminder.applescript' 'reminder script source is loaded from the script folder'

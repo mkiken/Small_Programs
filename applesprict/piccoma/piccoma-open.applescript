@@ -1,5 +1,6 @@
 -- ピッコマの「¥0+」と「爆読み¥0」の漫画詳細ページをN件開く
 -- Chromeなどからサービスで呼んだり、osascriptコマンドで呼んだりとサービス経由だととても重いので、automatorからアプリケーションとして起動するとよい
+-- ログイン切れ時はピッコマのXログインを開き、本棚へ戻るのを待って処理を続行する
 -- フラグ: --count N でページ数、--silent で完了アラート抑制、--reminder で開いた作品タブに対して piccoma-reminder.applescript を続けて実行する
 
 on run argv
@@ -49,6 +50,14 @@ on run argv
 			set historyTab to active tab
 			set URL of historyTab to "https://piccoma.com/web/bookshelf/bookmark"
 			set bookshelfState to my waitForBookshelfLoaded(historyTab)
+
+			-- ログイン切れならXログインを開き、本棚へ戻るまで待って再判定する
+			if bookshelfState is "login_required" then
+				set URL of historyTab to "https://piccoma.com/web/acc/twitter/signin?next_url=/web/bookshelf/bookmark"
+				if my waitForLoginReturn(historyTab) then
+					set bookshelfState to my waitForBookshelfLoaded(historyTab)
+				end if
+			end if
 
 			if bookshelfState is not "ready" and bookshelfState is not "no_target" then
 				display alert "本棚を開けませんでした" message "ログイン状態を確認してから再実行してください。" as critical
@@ -125,6 +134,7 @@ on waitForBookshelfLoaded(theTab)
 			tell application "Google Chrome"
 				set loadState to (execute theTab javascript "
 					(function() {
+						if (location.hostname.endsWith('piccoma.com') && location.pathname.startsWith('/web/acc/')) return 'login_required';
 						if (!location.hostname.endsWith('piccoma.com') || location.pathname !== '/web/bookshelf/bookmark') return 'not_bookshelf';
 						if (document.querySelector('.PCOM-prdList_badge_freeplus, .PCOM-prdList_badge_bingefree')) return 'ready';
 						const bodyText = (document.body ? document.body.innerText : '').trim();
@@ -150,3 +160,16 @@ on waitForBookshelfLoaded(theTab)
 	end repeat
 	return loadState
 end waitForBookshelfLoaded
+
+-- Xログイン中はXのドメインに居るのでJavaScriptは使わず、タブのURLが本棚へ戻るのを約120秒ポーリングする
+on waitForLoginReturn(theTab)
+	repeat with attempt from 1 to 240
+		try
+			tell application "Google Chrome"
+				if (URL of theTab) starts with "https://piccoma.com/web/bookshelf/bookmark" then return true
+			end tell
+		end try
+		delay 0.5
+	end repeat
+	return false
+end waitForLoginReturn
