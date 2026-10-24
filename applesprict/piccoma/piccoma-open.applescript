@@ -161,12 +161,26 @@ on waitForBookshelfLoaded(theTab)
 	return loadState
 end waitForBookshelfLoaded
 
--- Xログイン中はXのドメインに居るのでJavaScriptは使わず、タブのURLが本棚へ戻るのを約120秒ポーリングする
+-- Xログイン中はタブのURLが本棚へ戻るのを約120秒ポーリングする
+-- XのOAuth認可画面（ピッコマ宛てのみ）では「連携アプリを認証」ボタンを1回だけ自動で押す
 on waitForLoginReturn(theTab)
+	set authorizeClicked to false
 	repeat with attempt from 1 to 240
 		try
 			tell application "Google Chrome"
-				if (URL of theTab) starts with "https://piccoma.com/web/bookshelf/bookmark" then return true
+				set currentURL to URL of theTab
+				if currentURL starts with "https://piccoma.com/web/bookshelf/bookmark" then return true
+				if not authorizeClicked and currentURL starts with "https://api.x.com/oauth/" and currentURL contains "oauth_callback=https%3A%2F%2Fpiccoma.com%2F" then
+					set clickResult to (execute theTab javascript "
+						(function() {
+							const btn = document.querySelector('#oauth_form input[type=\"submit\"]:not(#cancel)');
+							if (!btn) return 'no_button';
+							btn.click();
+							return 'clicked';
+						})()
+					") as text
+					if clickResult is "clicked" then set authorizeClicked to true
+				end if
 			end tell
 		end try
 		delay 0.5

@@ -63,6 +63,11 @@ assert_contains '/web/acc/twitter/signin?next_url=/web/bookshelf/bookmark' 'X lo
 assert_contains 'on waitForLoginReturn(theTab)' 'login return polling handler exists'
 assert_order 'my waitForLoginReturn(historyTab)' 'display alert "本棚を開けませんでした"' 'login return is awaited before the failure alert'
 
+# XのOAuth認可画面ではピッコマ宛てに限り連携アプリ認証ボタンを自動で押す
+assert_contains '#oauth_form input[type=\"submit\"]:not(#cancel)' 'authorize button is clicked without touching cancel'
+assert_contains 'oauth_callback=https%3A%2F%2Fpiccoma.com%2F' 'auto-authorize is limited to piccoma callbacks'
+assert_contains 'set authorizeClicked to true' 'authorize button is clicked only once'
+
 # --reminder 統合モード: 開いた作品タブへ続けてリマインダー登録まで実行する
 assert_contains 'arg is "--reminder" or arg is "-r"' 'reminder integration flag is parsed'
 assert_contains '/piccoma-reminder.applescript' 'reminder script source is loaded from the script folder'
