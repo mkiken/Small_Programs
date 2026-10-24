@@ -68,6 +68,15 @@ assert_contains '#oauth_form input[type=\"submit\"]:not(#cancel)' 'authorize but
 assert_contains 'oauth_callback=https%3A%2F%2Fpiccoma.com%2F' 'auto-authorize is limited to piccoma callbacks'
 assert_contains 'set authorizeClicked to true' 'authorize button is clicked only once'
 
+# 作品タブは間隔を空けて開き、Too Many Requestsになったタブだけ再読込する
+assert_contains 'set tabOpenInterval to 0.5' 'tab open interval is defined'
+assert_contains 'delay tabOpenInterval' 'tabs are opened with a pause between them'
+assert_contains 'on recoverRateLimitedTabs(' 'rate limit recovery handler exists'
+assert_contains '/too many requests|429/i' 'rate limited pages are detected by text'
+assert_contains 'reload (tab' 'rate limited tabs are reloaded'
+assert_order 'make new tab with properties {URL:linkURL}' 'my recoverRateLimitedTabs(' 'recovery runs after tabs are opened'
+assert_order 'my recoverRateLimitedTabs(' 'run script reminderSource' 'recovery runs before the reminder chain'
+
 # --reminder 統合モード: 開いた作品タブへ続けてリマインダー登録まで実行する
 assert_contains 'arg is "--reminder" or arg is "-r"' 'reminder integration flag is parsed'
 assert_contains '/piccoma-reminder.applescript' 'reminder script source is loaded from the script folder'

@@ -1,6 +1,7 @@
 -- ピッコマの「¥0+」と「爆読み¥0」の漫画詳細ページをN件開く
 -- Chromeなどからサービスで呼んだり、osascriptコマンドで呼んだりとサービス経由だととても重いので、automatorからアプリケーションとして起動するとよい
 -- ログイン切れ時はピッコマのXログインを開き、本棚へ戻るのを待って処理を続行する
+-- 作品タブは間隔を空けて開き、Too Many Requestsになったタブは間隔を空けて再読込する
 -- フラグ: --count N でページ数、--silent で完了アラート抑制、--reminder で開いた作品タブに対して piccoma-reminder.applescript を続けて実行する
 
 on run argv
@@ -40,6 +41,8 @@ on run argv
 
 
 	set startTime to (current date)
+	set tabOpenInterval to 0.5 -- 作品タブを開く間隔（秒）
+	set openedCount to 0
 
 	tell application "Google Chrome"
 		activate
@@ -85,15 +88,20 @@ on run argv
 	               ") as text
 			end if
 
-			-- 取得したリンクを新しいタブで開く（開いた後にタブを読む処理はないので読み込み待ちは不要）
+			-- 取得したリンクを新しいタブで開く（Too Many Requests予防のためタブ間に短い待機を入れる）
 			if targetLinks is not "" then
 				set linkList to my splitText(targetLinks, ",")
 				repeat with linkURL in linkList
+					if openedCount > 0 then delay tabOpenInterval
 					make new tab with properties {URL:linkURL}
+					set openedCount to openedCount + 1
 				end repeat
 			end if
 		end tell
 	end tell
+
+	-- 新規ウィンドウなので本棚タブが1番、作品タブは2番以降。429になったタブだけ間隔を空けて再読込する
+	if openedCount > 0 then my recoverRateLimitedTabs(theWindow, 2, openedCount + 1, tabOpenInterval)
 
 	-- 統合モード: 開いた作品タブへ続けてリマインダー登録までを一気に実行する（ページ読み込み待ちはreminder側のポーリングが担う）
 	-- run script内ではpath to meが呼び出し元を指すため、スクリプトフォルダを引数で渡す
@@ -187,3 +195,47 @@ on waitForLoginReturn(theTab)
 	end repeat
 	return false
 end waitForLoginReturn
+
+-- 作品タブがToo Many Requestsページ（白背景に文字だけ）になっていないか確認し、該当タブだけ間隔を空けて再読込する
+-- 状態: "ok" 作品ページ描画済みなど / "rate_limited" 429ページ / "loading" 読み込み中。読み込み中のタブは落ち着くまでポーリングする
+-- 最大3ラウンドで諦める（残ったタブは--reminder時にreminder側の読み込み失敗として報告される）
+on recoverRateLimitedTabs(theWindow, firstTabIndex, lastTabIndex, tabOpenInterval)
+	repeat with roundNumber from 1 to 3
+		set limitedIndexes to {}
+		repeat with tabIndex from firstTabIndex to lastTabIndex
+			set tabState to "loading"
+			repeat with attempt from 1 to 12
+				try
+					tell application "Google Chrome"
+						set tabState to (execute (tab tabIndex of theWindow) javascript "
+							(function() {
+								if (document.querySelector('.PCM-productTitle')) return 'ok';
+								const bodyText = (document.body ? document.body.innerText : '');
+								if (/too many requests|429/i.test(document.title + ' ' + bodyText.slice(0, 500))) return 'rate_limited';
+								if (document.readyState !== 'complete') return 'loading';
+								return 'ok';
+							})()
+						") as text
+					end tell
+				end try
+				if tabState is not "loading" then exit repeat
+				if attempt ≤ 5 then
+					delay 0.2
+				else
+					delay 0.5
+				end if
+			end repeat
+			if tabState is "rate_limited" then set end of limitedIndexes to tabIndex
+		end repeat
+
+		if (count of limitedIndexes) is 0 then return
+		-- 制限が解けるのを待ってから、間隔を空けて再読込する
+		delay 2
+		repeat with limitedIndex in limitedIndexes
+			try
+				tell application "Google Chrome" to reload (tab (contents of limitedIndex) of theWindow)
+			end try
+			delay tabOpenInterval
+		end repeat
+	end repeat
+end recoverRateLimitedTabs
